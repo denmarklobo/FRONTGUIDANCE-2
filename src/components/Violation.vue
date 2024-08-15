@@ -33,7 +33,8 @@
           Policy
         </v-btn>
     <!-- Report Generation Dropdown -->
-    <v-menu offset-y>
+     
+    <v-menu offset-y close-on-content-click="false">
       <template v-slot:activator="{ props }">
         <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
           <v-icon left>mdi-file-chart</v-icon>
@@ -62,9 +63,25 @@
           </v-list-item-icon>
           <v-list-item-title>Generate Yearly Report</v-list-item-title>
         </v-list-item>
+        <v-list-item>
+      <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
+        <v-icon left>mdi-file-chart</v-icon>
+        Generate Report by Student ID
+      </v-btn>
+    </v-list-item>
+    <v-list-item>
+      <v-text-field
+        v-model="studentIdForReport"
+        label="Enter Student ID"
+        prepend-icon="mdi-account"
+        class="mt-4"
+        hide-details
+      ></v-text-field>
+    </v-list-item>
       </v-list>
     </v-menu>
   </v-toolbar>
+
 
       <!-- New Violation Dialog -->
       <v-dialog v-model="dialog" max-width="1000px">
@@ -109,6 +126,14 @@
                     required
                   ></v-text-field>
                 </v-col>
+                <v-col cols="12">
+                    <v-text-field
+                      v-model="editedItem.con_date"
+                      label="Entry Date*"
+                      prepend-icon="mdi-calendar"
+                      required
+                    ></v-text-field>
+                  </v-col>
               </v-row>
             </v-container>
           </v-card-text>
@@ -259,6 +284,7 @@ export default {
   data() {
     return {
       cases: [],
+      studentIdForReport: "",
       dialog: false,
       policyDialog: false,
       editedItem: {
@@ -266,319 +292,6 @@ export default {
         student_id: null, // Nullable
         case_title: '',
         case_description: '',
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         case_sanction: '',
         case_status: 0,
         case_date: ''
@@ -612,6 +325,33 @@ export default {
     }
   },
   methods: {
+
+    generateReportByStudentId() {
+      if (!this.studentIdForReport) {
+        Swal.fire({
+          icon: "warning",
+          title: "No Student ID Provided",
+          text: "Please enter a student ID before generating the report.",
+        });
+        return;
+      }
+
+      const filteredViolations = this.cases.filter(
+        (violation) => violation.student_id === this.studentIdForReport
+      );
+
+      if (filteredViolations.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No Records Found",
+          text: `No cases found for Student ID: ${this.studentIdForReport}.`,
+        });
+        return;
+      }
+
+      this.exportReport(filteredViolations, `Report for Student ID: ${this.studentIdForReport}`);
+    },
+
     formatDate(dateString) {
       const date = new Date(dateString);
       if (isNaN(date)) {
@@ -670,41 +410,44 @@ export default {
     },
 
     exportReport(violations, title) {
-      try {
-        const data = violations.map((v) => ({
-          'Student ID': v.student_id,
-          'Full Name': v.full_name,
-          'Title': v.case_title,
-          'Description': v.case_description,
-          'Sanction': v.case_sanction,
-          'Status': v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
-          'Date': v.case_date
-        }));
+  try {
+    // Ensure sheet name does not exceed 31 characters
+    const safeTitle = title.length > 31 ? title.substring(0, 31) : title || 'Report';
 
-        const ws = XLSX.utils.json_to_sheet(data);
-        ws['!cols'] = Array(data[0] ? Object.keys(data[0]).length : 0).fill({ width: 18 });
+    const data = violations.map((v) => ({
+      'Student ID': v.student_id,
+      'Full Name': v.full_name,
+      'Title': v.case_title,
+      'Description': v.case_description,
+      'Sanction': v.case_sanction,
+      'Status': v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
+      'Date': v.case_date
+    }));
 
-        const centerStyle = {
-          alignment: { horizontal: 'center', vertical: 'center' }
-        };
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = Array(data[0] ? Object.keys(data[0]).length : 0).fill({ width: 18 });
 
-        for (let cellAddress in ws) {
-          if (cellAddress[0] === '!') continue;
-          if (!ws[cellAddress].s) ws[cellAddress].s = {};
-          Object.assign(ws[cellAddress].s, centerStyle);
-        }
+    const centerStyle = {
+      alignment: { horizontal: 'center', vertical: 'center' }
+    };
 
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, title);
+    for (let cellAddress in ws) {
+      if (cellAddress[0] === '!') continue;
+      if (!ws[cellAddress].s) ws[cellAddress].s = {};
+      Object.assign(ws[cellAddress].s, centerStyle);
+    }
 
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, safeTitle); // Use safeTitle here
 
-        saveAs(blob, `${title}.xlsx`);
-      } catch (error) {
-        console.error('Error exporting report:', error);
-      }
-    },
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    saveAs(blob, `${title}.xlsx`);
+  } catch (error) {
+    console.error('Error exporting report:', error);
+  }
+},
 
     fetchViolations() {
       axios.get('http://26.81.173.255:8000/api/cases')
