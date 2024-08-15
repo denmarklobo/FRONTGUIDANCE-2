@@ -43,6 +43,21 @@
         </v-btn>
       </template>
       <v-list>
+        <v-list-item>
+      <v-text-field
+        v-model="studentIdForReport"
+        label="Enter Student ID"
+        prepend-icon="mdi-account"
+        class="mt-4"
+        hide-details
+      ></v-text-field>
+    </v-list-item>
+    <v-list-item>
+      <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
+        <v-icon left>mdi-file-chart</v-icon>
+        Generate Report by Student ID
+      </v-btn>
+    </v-list-item>
             <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
           <v-list-item-icon>
           </v-list-item-icon>
@@ -63,21 +78,6 @@
           </v-list-item-icon>
           <v-list-item-title>Generate Yearly Report</v-list-item-title>
         </v-list-item>
-        <v-list-item>
-      <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
-        <v-icon left>mdi-file-chart</v-icon>
-        Generate Report by Student ID
-      </v-btn>
-    </v-list-item>
-    <v-list-item>
-      <v-text-field
-        v-model="studentIdForReport"
-        label="Enter Student ID"
-        prepend-icon="mdi-account"
-        class="mt-4"
-        hide-details
-      ></v-text-field>
-    </v-list-item>
       </v-list>
     </v-menu>
   </v-toolbar>
@@ -90,18 +90,18 @@
             <span class="text-h6" style="color: #ffffff">New Violation Record</span>
           </v-card-title>
           <v-card-text>
-            <v-container>
+                        <v-container>
               <v-row dense>
                 <v-col cols="12">
-  <v-text-field
-    v-model="editedItem.student_id"
-    label="Student ID*"
-    prepend-icon="mdi-account"
-    required
-    type="number"
-    @input="handleInput"
-  ></v-text-field>
-</v-col>
+                  <v-text-field
+                    v-model="editedItem.student_id"
+                    label="Student ID*"
+                    prepend-icon="mdi-account"
+                    required
+                    type="number"
+                    @input="handleInput"
+                  ></v-text-field>
+                </v-col>
                 <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.case_title"
@@ -119,21 +119,21 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field
+                  <v-select
                     v-model="editedItem.case_sanction"
                     label="Sanction*"
                     prepend-icon="mdi-security"
                     required
-                  ></v-text-field>
+                    placeholder="Select a sanction"
+                    :items="[
+                      'A - Oral warning/reprimand',
+                      'A.1 - Item to be collected/ confiscated',
+                      'B - Warning with written agreement',
+                      'C - Suspension',
+                      'D - Non-readmission'
+                    ]"
+                  ></v-select>
                 </v-col>
-                <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.con_date"
-                      label="Entry Date*"
-                      prepend-icon="mdi-calendar"
-                      required
-                    ></v-text-field>
-                  </v-col>
               </v-row>
             </v-container>
           </v-card-text>
@@ -241,6 +241,7 @@
         <td>{{ item.student_id }}</td>
         <td>{{ item.full_name }}</td>
         <td>{{ item.case_title }}</td>
+        <td>{{ item.case_sanction }}</td>
         <td>{{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}</td>
         <td>{{ formatDate(item.case_date) }}</td>
         <td>
@@ -301,6 +302,7 @@ export default {
         { title: 'Student ID', value: 'student_id' },
         { title: 'Student Name', value: 'full_name' },
         { title: 'Title', value: 'case_title' },
+        { title: 'Sanction', value: 'case_sanction' },
         { title: 'Status', value: 'case_status' },
         { title: 'Date', value: 'case_date' },
         { title: 'Actions', value: 'actions', sortable: false }
