@@ -249,30 +249,26 @@
       </v-dialog>
     </template>
 
-    <template v-slot:item="{ item }">
-      <tr>
-        <td>{{ item.student_id }}</td>
-        <td>{{ item.full_name }}</td>
-        <!-- <td>{{ item.case_title }}</td> -->
-        <!-- <td>{{ item.case_sanction }}</td> -->
-        <td>{{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}</td>
-        <td>{{ formatDate(item.case_date) }}</td>
-        <td>
-          <v-icon class="me-2" size="small" style="color: #2F3F64" @click="viewRecords(item)">mdi-eye</v-icon>
-          <!-- <v-icon size="small" style="color: #2F3F64" @click="editRecord(item)">mdi-pencil</v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.cases_id)">mdi-archive</v-icon> -->
-
-        </td>
-      </tr>
-    </template>
+    <!-- List of unique student IDs for Violations -->
+    <v-list>
+      <v-list-item-group v-for="student in uniqueStudentIds" :key="student.student_id">
+        <v-list-item @click="viewStudentViolations(student.student_id)">
+          <v-list-item-content>
+            <v-list-item-title>{{ student.student_id }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+    </v-list>
   </v-data-table>
 
+
+  <!-- Dialog for viewing all violations of the selected student -->
   <v-dialog v-model="viewingRecords" max-width="600px">
     <v-card>
-      <v-card-title>Violation Details for Student ID: {{ editedItems[0]?.student_id }}</v-card-title>
-      <v-card-text>
+      <v-card-title>Violation Details for Student ID: {{ selectedStudentId }}</v-card-title>
+      <v-card-text v-if="selectedStudentViolations.length">
         <v-list>
-          <v-list-item-group v-for="(caseItem, index) in editedItems" :key="index">
+          <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title><strong>Case Title:</strong> {{ caseItem.case_title }}</v-list-item-title>
@@ -294,6 +290,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
 </template>
 
 <script>
@@ -307,6 +304,10 @@ export default {
   data() {
     return {
       cases: [],
+      uniqueStudentIds: [],
+      selectedStudentId: null,
+      selectedStudentViolations: [],
+      viewingRecords: false,
       studentIdForReport: "",
       dialog: false,
       policyDialog: false,
@@ -340,15 +341,14 @@ export default {
   },
   computed: {
     displayedViolations() {
-    const searchTerm = this.search.toLowerCase();
-    const groupedCases = this.groupCasesByStudentId();
-
-    return groupedCases.filter((student) =>
-      Object.values(student).some(
-        (value) =>
-          typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-      )
-    );
+      const searchTerm = this.search.toLowerCase();
+      return this.cases.filter(violation =>
+        violation.student_id.toLowerCase().includes(searchTerm)
+      );
+    },
+    uniqueStudentIds() {
+      const uniqueIds = new Set(this.cases.map(item => item.student_id));
+      return Array.from(uniqueIds).map(id => ({ student_id: id }));
     }
   },
   methods: {
@@ -529,6 +529,16 @@ export default {
         .catch(error => {
           console.error('Error fetching violations:', error.response ? error.response.data : error.message);
         });
+    },
+
+    viewStudentViolations(studentId) {
+      this.selectedStudentId = studentId;
+      this.selectedStudentViolations = this.cases.filter(caseItem => caseItem.student_id === studentId);
+      this.viewingRecords = true;
+    },
+    formatDate(date) {
+      // Implement your date formatting logic here
+      return new Date(date).toLocaleDateString();
     },
 
     saveNewRecord() {
