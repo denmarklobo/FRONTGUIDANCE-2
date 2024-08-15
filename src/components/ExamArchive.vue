@@ -140,38 +140,43 @@ export default {
       this.viewingRecords = true;
     },
     unarchiveItem(exam) {
-  const examId = exam.exam_id; // Use exam.exam_id here
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you want to unarchive this record?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes',
-    confirmButtonColor: "#4CAF50",
-    cancelButtonText: 'No',
-    cancelButtonColor: "#F44336",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      axios.post(`http://26.81.173.255:8000/api/examinations/${examId}/restore`) // Use examId here
-        .then(() => {
-          this.examinations = this.examinations.filter(e => e.exam_id !== examId); // Use examId here
-          Swal.fire(
-            'Unarchived!',
-            'The record has been unarchived successfully.',
-            'success'
-          );
-        })
-        .catch(error => {
-          console.error('Error un-archiving record:', error);
-          Swal.fire(
-            'Error!',
-            'There was an issue unarchiving the record.',
-            'error'
-          );
-        });
-    }
-  });
+    const examId = exam.exam_id; // Use exam.exam_id here
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to unarchive this record?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+        confirmButtonColor: "#4CAF50",
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
+        cancelButtonColor: "#F44336",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            axios.post(`http://26.81.173.255:8000/api/examinations/${examId}/restore`) // Use examId here
+                .then(() => {
+                    this.examinations = this.examinations.filter(e => e.exam_id !== examId); // Use examId here
+                    Swal.fire({
+                        title: 'Unarchived',
+                        text: 'The record has been unarchived successfully',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                })
+                .catch(error => {
+                    console.error('Error un-archiving record:', error);
+                    Swal.fire({
+                      title: 'Error',
+                        text: 'There was an Issue restoring the record',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 3000,
+                      });
+                });
+        }
+    });
 },
+
     getCurrentDate() {
       const today = new Date();
       const yyyy = today.getFullYear();

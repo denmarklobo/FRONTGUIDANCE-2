@@ -129,14 +129,14 @@ export default {
     console.log('Received ID for restoring:', con_id);
     Swal.fire({
         title: 'Are you sure?',
-        text: 'Do you want to restire this record?',
+        text: 'Do you want to save this record?',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Yes',
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
         confirmButtonColor: "#4CAF50",
-        cancelButtonText: 'No',
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
         cancelButtonColor: "#F44336",
-    }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
 
     // Confirm with the user before proceeding
@@ -146,12 +146,25 @@ export default {
             .then(response => {
                 console.log('Record restored successfully:', response.data);
                 this.fetchArchivedConsultations(); // Refresh the list of archived consultations
-                Swal.fire('Unarchived', 'Consultation restored successfully!', 'success');
+                Swal.fire({
+        title: 'Unarchived',
+        text: 'Consultation Restored Successfully!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3000,
+
+      });
             })
             .catch(error => {
                 // Log and handle the error
                 console.error('Error restoring record:', error.response ? error.response.data : error.message);
-                Swal.fire('Error', 'Error archiving consultation', 'error');
+                Swal.fire({
+    title: 'Error',
+    text: 'Error Restoring Record',
+    icon: 'error',
+    showConfirmButton: false, 
+    timer: 3000,          
+});
               });
       
         }

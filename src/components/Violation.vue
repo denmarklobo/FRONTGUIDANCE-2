@@ -43,6 +43,15 @@
         </v-btn>
       </template>
       <v-list>
+        <v-list-item>
+      <v-text-field
+        v-model="studentIdForReport"
+        label="Enter Student ID"
+        prepend-icon="mdi-account"
+        class="mt-4"
+        hide-details
+      ></v-text-field>
+    </v-list-item>
             <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
           <v-list-item-icon>
           </v-list-item-icon>
@@ -69,15 +78,7 @@
         Generate Report by Student ID
       </v-btn>
     </v-list-item>
-    <v-list-item>
-      <v-text-field
-        v-model="studentIdForReport"
-        label="Enter Student ID"
-        prepend-icon="mdi-account"
-        class="mt-4"
-        hide-details
-      ></v-text-field>
-    </v-list-item>
+
       </v-list>
     </v-menu>
   </v-toolbar>

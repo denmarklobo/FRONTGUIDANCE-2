@@ -280,8 +280,8 @@ export default {
         title: 'Error',
         text: 'Failed to fetch consultation record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false, 
+        timer: 3000, 
 
       });
     });
@@ -333,7 +333,14 @@ export default {
               .then(response => {
                 this.fetchConsultations();
                 this.closeDialog();
-                Swal.fire('Updated!', 'Record updated successfully!', 'success');
+                Swal.fire({
+        title: 'Updated',
+        text: 'Record Updated Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+
+      });
               })
               .catch(error => {
                 console.error('Error updating record', error);
@@ -341,9 +348,8 @@ export default {
         title: 'Error',
         text: 'Error updating record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
-
+        showConfirmButton: false, 
+        timer: 3000, 
       });
                 
                 
@@ -355,17 +361,22 @@ export default {
                 console.log('Record saved successfully:', response.data);
                 this.displayedConsultations.push(response.data.consultation);
                 this.closeDialog();
-                Swal.fire('Saved!', 'Record saved successfully!', 'success');
-              })
+                Swal.fire({
+        title: 'Saved',
+        text: 'Record Saved Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+        });
+      })
               .catch(error => {
                 console.error('Error saving new record', error);
                 Swal.fire({
         title: 'Error',
         text: 'Error saving new record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
-
+        showConfirmButton: false, 
+        timer: 3000, 
       });
               });
           }
@@ -378,7 +389,13 @@ export default {
             console.log('Record saved successfully:', response.data);
             this.displayedConsultations.push(response.data.consultation);
             this.closeDialog();
-            Swal.fire('Updated!', 'Record updated successfully!', 'success');
+            Swal.fire({
+        title: 'Updated',
+        text: 'Record Saved Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+        });
           })
           .catch(error => {
             console.error('Error saving new record:', error.response ? error.response.data : error.message);
@@ -386,8 +403,8 @@ export default {
         title: 'Error',
         text: 'Error saving new record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false, 
+        timer: 3000, 
 
       });
           });
@@ -411,7 +428,14 @@ export default {
             .post(`http://26.81.173.255:8000/api/consultation/${id}/archive`)
             .then((response) => {
               this.fetchConsultations();
-              Swal.fire('Archived', 'Consultation archived successfully!', 'success');
+              Swal.fire({
+        title: 'Archived',
+        text: 'Consultation Archived Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+
+      });
             })
             .catch((error) => {
               // console.error('Error archiving consultation:', error.response ? error.response.data : error.message);
@@ -428,7 +452,13 @@ export default {
           .then((response) => {
             this.fetchConsultations();
             this.archiveDialog = false;
-            Swal.fire('Archived', 'Consultation archived successfully!', 'success');
+            Swal.fire({
+        title: 'Archived',
+        text: 'Consultation Archived Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+      });
           })
           .catch((error) => {
             console.error('Error archiving consultation:', error.response ? error.response.data : error.message);
@@ -436,9 +466,8 @@ export default {
         title: 'Error',
         text: 'Error archiving record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
-
+        showConfirmButton: false, 
+        timer: 3000, 
       });
           });
       }

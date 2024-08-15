@@ -95,8 +95,8 @@ export default {
           title: 'Login Successful',
           text: `Welcome to ${user.role === 'admin' ? 'Guidance Panel' : 'Disciplinary Panel'}!`,
           icon: 'success',
-          confirmButtonColor: '#4CAF50',
-          confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+          showConfirmButton: false, 
+          timer: 3000, 
         }).then(() => {
           if (user.role === 'admin') {
             this.$router.push('/ddashboard'); // Redirect based on role
@@ -110,8 +110,8 @@ export default {
           title: 'Unauthorized',
           text: 'You are not authorized to access this system.',
           icon: 'error',
-          confirmButtonColor: '#F44336',
-          confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+          showConfirmButton: false, 
+          timer: 3000, 
         });
       }
     })
@@ -121,8 +121,8 @@ export default {
         title: 'Login Failed',
         text: 'Please check your credentials and try again.',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false, 
+        timer: 3000, 
       });
     });
   }

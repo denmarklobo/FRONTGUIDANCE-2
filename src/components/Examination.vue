@@ -224,7 +224,14 @@ export default {
               .then(response => {
                 this.fetchExam();
                 this.closeDialog();
-                Swal.fire('Updated!', 'Record updated successfully!', 'success');
+                Swal.fire({
+        title: 'Updated',
+        text: 'Record Updated Successfully!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3000,
+
+      });
               })
               .catch(error => {
                 console.error('Error updating record', error);
@@ -232,8 +239,8 @@ export default {
         title: 'Error',
         text: 'Error updating record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false,
+        timer: 3000,
 
       });
               });
@@ -244,7 +251,14 @@ export default {
                 this.examinations.push(response.data);
                 this.fetchExam();
                 this.closeDialog();
-                Swal.fire('Saved!', 'Record saved successfully!', 'success');
+                Swal.fire({
+        title: 'Success',
+        text: 'Record Saved Successfully!',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 3000,
+
+      });
               })
               .catch(error => {
                 console.error('Error fetching record', error);
@@ -252,8 +266,8 @@ export default {
         title: 'Error',
         text: 'Error saving new record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false,
+        timer: 3000,
 
       });
               });
@@ -267,9 +281,9 @@ export default {
         text: 'Do you want to archive this record?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes',
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
         confirmButtonColor: "#4CAF50",
-        cancelButtonText: 'No',
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
@@ -277,7 +291,14 @@ export default {
             .then(response => {
               console.log('Examination archived successfully:', response.data);
               this.updateExaminations();
-              Swal.fire('Archived!', 'Record archived successfully!', 'success');
+              Swal.fire({
+        title: 'Archived',
+        text: 'Record Archived Successfully!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3000,
+
+      });
             })
             .catch(error => {
               console.error('Error archiving examination:', error.response ? error.response.data : error.message);
@@ -285,8 +306,8 @@ export default {
         title: 'Error',
         text: 'Error Archiving record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false,
+        timer: 3000,
 
       });
             });
@@ -300,7 +321,14 @@ export default {
             console.log('Examination archived successfully:', response.data);
             this.updateExaminations();
             this.archiveDialog = false;
-            Swal.fire('Archived!', 'Record archived successfully!', 'success');
+            Swal.fire({
+        title: 'Archived',
+        text: 'Record Archived Successfully!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 3000,
+
+      });
           })
           .catch(error => {
             console.error('Error archiving examination:', error.response ? error.response.data : error.message);
@@ -308,8 +336,8 @@ export default {
         title: 'Error',
         text: 'Error archiving record',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false,
+        timer: 3000,
 
       });
           });
@@ -327,8 +355,8 @@ export default {
         title: 'Error',
         text: 'Error fetching examination',
         icon: 'error',
-        confirmButtonColor: '#F44336',
-        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+        showConfirmButton: false,
+        timer: 3000,
 
       });
         });
