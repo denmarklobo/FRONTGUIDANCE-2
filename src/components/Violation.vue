@@ -253,14 +253,14 @@
       <tr>
         <td>{{ item.student_id }}</td>
         <td>{{ item.full_name }}</td>
-        <td>{{ item.case_title }}</td>
-        <td>{{ item.case_sanction }}</td>
+        <!-- <td>{{ item.case_title }}</td> -->
+        <!-- <td>{{ item.case_sanction }}</td> -->
         <td>{{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}</td>
         <td>{{ formatDate(item.case_date) }}</td>
         <td>
           <v-icon class="me-2" size="small" style="color: #2F3F64" @click="viewRecords(item)">mdi-eye</v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="editRecord(item)">mdi-pencil</v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.cases_id)">mdi-archive</v-icon>
+          <!-- <v-icon size="small" style="color: #2F3F64" @click="editRecord(item)">mdi-pencil</v-icon>
+          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.cases_id)">mdi-archive</v-icon> -->
 
         </td>
       </tr>
@@ -268,23 +268,32 @@
   </v-data-table>
 
   <v-dialog v-model="viewingRecords" max-width="600px">
-          <v-card>
-            <v-card-title>Violation Details</v-card-title>
-            <v-card-text v-if="displayedViolations">
-              <p><strong>Student ID:</strong> {{ editedItems.student_id || 'N/A' }}</p>
-              <p><strong>Case Title:</strong> {{ editedItems.case_title }}</p>
-              <p><strong>Case Description:</strong> {{ editedItems.case_description }}</p>
-              <p><strong>Case Sanction:</strong> {{ editedItems.case_sanction }}</p>
-              <p><strong>Case Date:</strong> {{ formatDate(editedItems.case_date) }}</p>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-              <v-btn @click="editItem(displayedViolations)" class="mb-2 rounded-l add-record-button" dark>Edit</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-
+    <v-card>
+      <v-card-title>Violation Details for Student ID: {{ editedItems[0]?.student_id }}</v-card-title>
+      <v-card-text>
+        <v-list>
+          <v-list-item-group v-for="(caseItem, index) in editedItems" :key="index">
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title><strong>Case Title:</strong> {{ caseItem.case_title }}</v-list-item-title>
+                <v-list-item-subtitle><strong>Description:</strong> {{ caseItem.case_description }}</v-list-item-subtitle>
+                <v-list-item-subtitle><strong>Sanction:</strong> {{ caseItem.case_sanction }}</v-list-item-subtitle>
+                <v-list-item-subtitle><strong>Date:</strong> {{ formatDate(caseItem.case_date) }}</v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn @click="editCase(caseItem)" class="mr-2" small> Edit </v-btn>
+                <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -301,6 +310,7 @@ export default {
       studentIdForReport: "",
       dialog: false,
       policyDialog: false,
+      editedItems: [],
       editedItem: {
         id: null, // Field to track record ID
         student_id: null, // Nullable
@@ -314,8 +324,8 @@ export default {
       headers: [
         { title: 'Student ID', value: 'student_id' },
         { title: 'Student Name', value: 'full_name' },
-        { title: 'Title', value: 'case_title' },
-        { title: 'Sanction', value: 'case_sanction' },
+        // { title: 'Title', value: 'case_title' },
+        // { title: 'Sanction', value: 'case_sanction' },
         { title: 'Status', value: 'case_status' },
         { title: 'Date', value: 'case_date' },
         { title: 'Actions', value: 'actions', sortable: false }
@@ -324,22 +334,60 @@ export default {
     };
   },
 
-  
+
   mounted() {
     this.fetchViolations();
   },
   computed: {
     displayedViolations() {
-      const searchTerm = this.search.toLowerCase();
-      return this.cases.filter((violation) =>
-        Object.values(violation).some(
-          (value) =>
-            typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-        )
-      );
+    const searchTerm = this.search.toLowerCase();
+    const groupedCases = this.groupCasesByStudentId();
+
+    return groupedCases.filter((student) =>
+      Object.values(student).some(
+        (value) =>
+          typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+      )
+    );
     }
   },
   methods: {
+
+    viewRecords(item) {
+      console.log('Viewing records for ID:', item.student_id);
+      this.editedItems = item.all_cases || []; // Set to the array of cases for the student
+      this.viewingRecords = true;
+    },
+
+    viewRecords(item) {
+  console.log('Viewing records for ID:', item.student_id);
+  this.editedItems = item.all_cases || []; // Set to the array of cases for the student
+  this.viewingRecords = true;
+},
+
+    groupCasesByStudentId() {
+    const grouped = {};
+
+    this.cases.forEach((violation) => {
+      if (!grouped[violation.student_id]) {
+        grouped[violation.student_id] = {
+          student_id: violation.student_id,
+          full_name: violation.full_name,
+          cases: []
+        };
+      }
+      grouped[violation.student_id].cases.push(violation);
+    });
+
+    return Object.values(grouped).map((student) => ({
+      student_id: student.student_id,
+      full_name: student.full_name,
+      case_title: student.cases.map((c) => c.case_title).join(', '),
+      case_status: student.cases.some((c) => c.case_status === 0) ? 'Not-Cleared' : 'Cleared',
+      case_date: student.cases[0].case_date,
+      all_cases: student.cases
+    }));
+  },
 
     generateReportByStudentId() {
       if (!this.studentIdForReport) {
@@ -366,16 +414,21 @@ export default {
 
       this.exportReport(filteredViolations, `Report for Student ID: ${this.studentIdForReport}`);
     },
-
     formatDate(dateString) {
-      const date = new Date(dateString);
-      if (isNaN(date)) {
-        console.error('Invalid date:', dateString);
-        return 'Invalid Date';
-      }
-      return format(date, 'MM/dd/yyyy HH:mm:ss');
-    },
+  console.log('Input dateString:', dateString); // Log input for debugging
 
+  if (!dateString || typeof dateString !== 'string') {
+    return 'No Date Provided';
+  }
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date:', dateString);
+    return 'Invalid Date';
+  }
+
+  return format(date, 'MM/dd/yyyy HH:mm:ss');
+},
     handleInput(event) {
       // Extract the value from the event
       const value = event.target.value;
@@ -528,7 +581,8 @@ export default {
   });
 },
 
-    archiveItem(cases_id) {
+ archiveCase(caseId) {
+  this.dialog = false;
       Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to archive this record?',
@@ -540,23 +594,20 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-      console.log('Received ID for archiving:', cases_id);
-
-        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id })
-          .then(response => {
-            console.log('Record archived successfully:', response.data);
-            this.cases = this.cases.filter(record => record.cases_id !== cases_id);
-            Swal.fire('Archived!', 'Record archived successfully!', 'success');
-          })
-          .catch(error => {
-            console.error('Error archiving record:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Error archiving record', 'error');
-          });
-      
-    }
-  });
-},
-
+          console.log('Received ID for archiving:', caseId);
+          axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
+            .then(response => {
+              console.log('Record archived successfully:', response.data);
+              this.editedItems = this.editedItems.filter(record => record.cases_id !== caseId);
+              Swal.fire('Archived!', 'Record archived successfully!', 'success');
+            })
+            .catch(error => {
+              console.error('Error archiving record:', error.response ? error.response.data : error.message);
+              Swal.fire('Error', 'Error archiving record', 'error');
+            });
+        }
+      });
+    },
     openDialog() {
       this.editedItem = {
         id: null,
