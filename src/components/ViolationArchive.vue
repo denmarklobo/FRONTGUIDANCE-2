@@ -29,7 +29,9 @@
           <td>{{ item.student_id }}</td>
           <td>{{ item.case_title }}</td>
           <td>{{ item.case_description }}</td>
-          <td>{{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}</td>
+          <td class="{{ item.case_status === 0 ? 'status-not-cleared' : 'status-cleared' }}">
+  {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
+</td>
           <td>{{ item.case_date }}</td>
           <td>
             <v-icon size="small" style="color: #2F3F64" @click="restoreItem(item.cases_id)">mdi-restore</v-icon>
@@ -144,5 +146,13 @@ export default {
 
 .add-record-button:hover {
   background-color: var(--grey);
+}
+
+.status-cleared {
+  color: green;
+}
+
+.status-not-cleared {
+  color: red;
 }
 </style>
