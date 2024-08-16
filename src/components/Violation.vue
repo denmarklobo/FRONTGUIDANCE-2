@@ -42,6 +42,7 @@
           <v-icon right>mdi-menu-down"></v-icon>
         </v-btn>
       </template>
+      
       <v-list>
         <v-list-item>
       <v-text-field
@@ -52,15 +53,12 @@
         hide-details
       ></v-text-field>
     </v-list-item>
-<<<<<<< HEAD
-=======
     <v-list-item>
       <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
         <v-icon left>mdi-file-chart</v-icon>
         Generate Report by Student ID
       </v-btn>
     </v-list-item>
->>>>>>> 394745d4be319847c3e26b00447f83ee96c477c8
             <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
           <v-list-item-icon>
           </v-list-item-icon>
@@ -81,7 +79,6 @@
           </v-list-item-icon>
           <v-list-item-title>Generate Yearly Report</v-list-item-title>
         </v-list-item>
-<<<<<<< HEAD
         <v-list-item>
       <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
         <v-icon left>mdi-file-chart</v-icon>
@@ -89,8 +86,6 @@
       </v-btn>
     </v-list-item>
 
-=======
->>>>>>> 394745d4be319847c3e26b00447f83ee96c477c8
       </v-list>
     </v-menu>
   </v-toolbar>
@@ -250,11 +245,11 @@
     </template>
 
     <!-- List of unique student IDs for Violations -->
-    <v-list>
+        <v-list>
       <v-list-item-group v-for="student in uniqueStudentIds" :key="student.student_id">
         <v-list-item @click="viewStudentViolations(student.student_id)">
           <v-list-item-content>
-            <v-list-item-title>{{ student.student_id }}</v-list-item-title>
+            <v-list-item-title>{{ student.student_id }} - {{ student.full_name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
@@ -277,7 +272,7 @@
                 <v-list-item-subtitle><strong>Date:</strong> {{ formatDate(caseItem.case_date) }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
-                <v-btn @click="editCase(caseItem)" class="mr-2" small> Edit </v-btn>
+                <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
                 <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
               </v-list-item-action>
             </v-list-item>
@@ -347,9 +342,19 @@ export default {
       );
     },
     uniqueStudentIds() {
-      const uniqueIds = new Set(this.cases.map(item => item.student_id));
-      return Array.from(uniqueIds).map(id => ({ student_id: id }));
-    }
+    const uniqueStudents = {};
+
+    this.cases.forEach(cases => {
+      const studentId = cases.student_profile.student_id;
+      const fullName = `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim();
+
+      if (!uniqueStudents[studentId]) {
+        uniqueStudents[studentId] = { student_id: studentId, full_name: fullName };
+      }
+    });
+
+    return Object.values(uniqueStudents);
+  },
   },
   methods: {
 
@@ -517,19 +522,23 @@ export default {
   }
 },
 
-    fetchViolations() {
-      axios.get('http://26.81.173.255:8000/api/cases')
-        .then(response => {
-          console.log('Fetched violations:', response.data.cases);
-          this.cases = response.data.cases.map((cases) => ({
-            ...cases, 
-            full_name: `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim(),
-          }));
-        })
-        .catch(error => {
-          console.error('Error fetching violations:', error.response ? error.response.data : error.message);
-        });
-    },
+fetchViolations() {
+  axios.get('http://26.81.173.255:8000/api/cases')
+    .then(response => {
+      console.log('Fetched violations:', response.data.cases);
+      this.cases = response.data.cases.map((cases) => {
+        const fullName = `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim();
+        console.log('Full name:', fullName);  // Log the full name
+        return {
+          ...cases,
+          full_name: fullName,
+        };
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching violations:', error.response ? error.response.data : error.message);
+    });
+},
 
     viewStudentViolations(studentId) {
       this.selectedStudentId = studentId;
@@ -571,7 +580,14 @@ export default {
             console.log('Record saved successfully:', response.data);
             this.cases.push(response.data.case);
             this.closeDialog();
-            Swal.fire('Saved!', 'Record saved successfully!', 'success');
+            Swal.fire({
+        title: 'Success',
+        text: 'Saved, Successfully Saved Record!',
+        icon: 'success',
+        confirmButtonColor: '#4CAF50',
+        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
+
+      });
           })
           .catch(error => {
             console.error('Error saving new record:', error.response ? error.response.data : error.message);
@@ -592,7 +608,7 @@ export default {
 },
 
  archiveCase(caseId) {
-  this.dialog = false;
+  this.viewingRecords = false;
       Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to archive this record?',
