@@ -41,25 +41,6 @@
             <p><strong>Student ID:</strong> {{ selectedStudent.student_id }}</p>
             <p><strong>Name:</strong> {{ selectedStudent.name }}</p>
             <hr>
-            <h4>Recent Examinations</h4>
-            <v-list two-line subheader style="max-height: 200px; overflow-y: auto;">
-              <v-list-item-group>
-                <v-list-item
-                  v-for="exam in selectedStudent.examinations"
-                  :key="exam.id"
-                  @click="viewExamDetails(exam)"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>{{ exam.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ exam.date }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-icon>
-                    <v-icon>mdi-chevron-right</v-icon>
-                  </v-list-item-icon>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-            <hr>
             <h4>Pending Violations</h4>
             <v-list two-line subheader style="max-height: 200px; overflow-y: auto;">
               <v-list-item-group>
@@ -83,24 +64,6 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="black" @click="viewingStudent = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="viewingExam" max-width="600px">
-      <v-card>
-        <v-card-title><h2>Exam Details</h2></v-card-title>
-        <v-card-text>
-          <div v-if="selectedExam">
-            <p><strong>Title:</strong> {{ selectedExam.title }}</p>
-            <p><strong>Score:</strong> {{ selectedExam.score }}</p>
-            <p><strong>Date:</strong> {{ selectedExam.date }}</p>
-            <p><strong>Description:</strong> {{ selectedExam.description }}</p>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="black" @click="viewingExam = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -184,7 +147,7 @@ export default {
               date: '2024-05-22'
             },
             {
-              id: 'V5681',
+              : 'V5681',
               description: 'Incomplete homework',
               status: 'Pending',
               date: '2024-05-24'
@@ -223,10 +186,6 @@ export default {
       this.selectedStudent = student;
       this.viewingStudent = true;
     },
-    viewExamDetails(exam) {
-      this.selectedExam = exam;
-      this.viewingExam = true;
-    },
     viewViolationDetails(violation) {
       this.selectedViolation = violation;
       this.viewingViolation = true;
@@ -245,5 +204,6 @@ export default {
   background-color: #2F3F64;
   color: #f0f0f0;
 }
+
 
 </style>

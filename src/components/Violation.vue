@@ -254,15 +254,24 @@
       </tr> -->
 
       <v-card>
+<<<<<<< Updated upstream
   <v-card-title class="text-h6 font-weight-bold">
+=======
+  <v-card-title class="text-h5 font-weight-bold">
+>>>>>>> Stashed changes
     <span>Student List</span>
   </v-card-title>
   <v-divider></v-divider>
   <v-card-text>
     <v-row class="font-weight-bold">
+<<<<<<< Updated upstream
       <v-col cols="4">Student ID</v-col>
       <v-col cols="4">Student Name</v-col>
       <v-col cols="4">Student Guidance Status</v-col>
+=======
+      <v-col cols="6">Student ID</v-col>
+      <v-col cols="6">Student Name</v-col>
+>>>>>>> Stashed changes
     </v-row>
     <v-divider></v-divider>
     <!-- List of unique student IDs for Violations -->
@@ -274,11 +283,16 @@
         >
           <v-list-item-content>
             <v-row>
+<<<<<<< Updated upstream
               <v-col cols="4">{{ student.student_id }}</v-col>
               <v-col cols="5">{{ student.full_name }}</v-col>
               <v-col cols="1" class="caseStatusClass(student.student_id)">
               {{ caseStatus(student.student_id) }}
             </v-col>
+=======
+              <v-col cols="6">{{ student.student_id }}</v-col>
+              <v-col cols="6">{{ student.full_name }}</v-col>
+>>>>>>> Stashed changes
             </v-row>
           </v-list-item-content>
         </v-list-item>
@@ -294,6 +308,7 @@
 
   <!-- Dialog for viewing all violations of the selected student -->
   <v-dialog v-model="viewingRecords" max-width="600px">
+<<<<<<< Updated upstream
     <v-card>
       <v-card-title>
         Violation Details for Student ID: {{ selectedStudentId }}
@@ -331,6 +346,41 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+=======
+  <v-card>
+    <v-card-title>Violation Details for Student ID: {{ selectedStudentId }}</v-card-title>
+    <v-card-text v-if="selectedStudentViolations.length">
+      <v-list>
+        <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title style="padding: 0.3rem;">
+                <strong>Case Title:</strong> {{ caseItem.case_title }}
+              </v-list-item-title>
+              <v-list-item-subtitle style="padding: 0.3rem;">
+                <strong>Sanction:</strong> {{ caseItem.case_sanction }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle style="padding: 0.3rem;">
+                <strong>Date:</strong> {{ formatDate(caseItem.case_date) }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action class="d-flex justify-end" style="padding: 0.3rem;">
+              <v-btn @click="editRecord(caseItem)" class="mr-2" small>Edit</v-btn>
+              <v-btn @click="archiveCase(caseItem.cases_id)" small>Archive</v-btn>
+            </v-list-item-action>
+          </v-list-item>
+          <hr>
+        </v-list-item-group>
+      </v-list>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+>>>>>>> Stashed changes
 
 </template>
 
@@ -388,6 +438,7 @@ export default {
       );
     },
     uniqueStudentIds() {
+<<<<<<< Updated upstream
     const uniqueStudents = {};
   
     this.cases.forEach(cases => {
@@ -416,6 +467,20 @@ export default {
       },
     
     },
+=======
+    const studentMap = new Map();
+    this.cases.forEach((caseItem) => {
+      if (!studentMap.has(caseItem.student_id)) {
+        studentMap.set(caseItem.student_id, {
+          student_id: caseItem.student_id,
+          full_name: caseItem.full_name,
+        });
+      }
+    });
+    return Array.from(studentMap.values());
+  }
+},
+>>>>>>> Stashed changes
 
   methods: {
 
@@ -614,6 +679,7 @@ export default {
     },
 
     saveNewRecord() {
+<<<<<<< Updated upstream
     if (this.editedItem.id) {
       // Update existing record
       this.updateRecord();
@@ -667,12 +733,93 @@ archiveCase(caseId) {
           .catch(error => {
             console.error('Error archiving record:', error.response ? error.response.data : error.message);
             Swal.fire('Error', 'Error archiving record', 'error');
+=======
+      const dataToSend = {
+        student_id: this.editedItem.student_id || '',
+        case_title: this.editedItem.case_title,
+        case_description: this.editedItem.case_description,
+        case_sanction: this.editedItem.case_sanction,
+        case_status: 0
+      };
+      this.viewingRecords = false;
+      this.dialog= false; 
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to save this record?',
+        icon: 'question',
+        showCancelButton: true,
+        textcolor: "#ffffff",
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+        confirmButtonColor: "#4CAF50",
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
+        cancelButtonColor: "#F44336",
+      }).then((result) => {
+        if (result.isConfirmed) {
+      console.log('Data to send:', dataToSend);
+      
+      if (this.validateForm()) {
+        axios.post('http://26.81.173.255:8000/api/cases', dataToSend)
+          .then(response => {
+            console.log('Record saved successfully:', response.data);
+            this.cases.push(response.data.case);
+            this.closeDialog();
+            Swal.fire({
+        title: 'Saved',
+        text: 'Record Saved Successfully!',
+        icon: 'success',
+        showConfirmButton: false, 
+        timer: 3000, 
+        });
+          })
+          .catch(error => {
+            console.error('Error saving new record:', error.response ? error.response.data : error.message);
+            Swal.fire({
+        title: 'Error',
+        text: 'Failed to Save Violation record',
+        icon: 'error',
+        showConfirmButton: false, 
+        timer: 3000, 
+
+      });
+>>>>>>> Stashed changes
           });
       }
     });
   },
 
 
+<<<<<<< Updated upstream
+=======
+archiveCase(caseId) {
+    this.viewingRecords = false;  // Close the dialog after action
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to archive this record?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      confirmButtonColor: "#4CAF50",
+      cancelButtonText: 'No',
+      cancelButtonColor: "#F44336",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log('Received ID for archiving:', caseId);
+        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
+          .then(response => {
+            console.log('Record archived successfully:', response.data);
+            // Remove the archived item from the violations list
+            this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
+            Swal.fire('Archived!', 'Record archived successfully!', 'success');
+          })
+          .catch(error => {
+            console.error('Error archiving record:', error.response ? error.response.data : error.message);
+            Swal.fire('Error', 'Error archiving record', 'error');
+          });
+      }
+    });
+  },
+
+>>>>>>> Stashed changes
     openDialog() {
       this.editedItem = {
         id: null,
@@ -722,7 +869,10 @@ archiveCase(caseId) {
  
 </script>
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 <style scoped>
   .v-card-title {
     background-color: #2F3F64;
