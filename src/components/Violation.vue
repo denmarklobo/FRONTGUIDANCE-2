@@ -1,58 +1,66 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="displayedViolations"
-    :search="search"
-    :sort-by="[{ key: 'case_date', order: 'desc' }]"
-  >
-    <template v-slot:top>
-      <v-toolbar flat>
+    <v-data-table
+      :headers="headers"
+      :items="displayedViolations"
+      :search="search"
+      :sort-by="[{ key: 'case_date', order: 'desc' }]"
+    >
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-text-field
+            v-model="search"
+            class="w-auto mr-4"
+            density="compact"
+            label="Search Violation"
+            prepend-inner-icon="mdi-magnify"
+            variant="solo-filled"
+            flat
+            hide-details
+            single-line
+            style="max-width: 500px;"
+          ></v-text-field>
+  
+          <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark>
+            <v-icon left>mdi-plus</v-icon>
+            Add Violation
+          </v-btn>
+          <v-btn @click="navigateToArchive" class="mb-2 rounded-l add-record-button mr-2" dark>
+            <v-icon left>mdi-archive</v-icon>
+            Archive
+          </v-btn>
+          <v-btn @click="openPolicy" class="mb-2 rounded-l add-record-button mr-2">
+            <v-icon left>mdi-lightbulb</v-icon>
+            Policy
+          </v-btn>
+      <!-- Report Generation Dropdown -->
+       
+      <v-menu offset-y close-on-content-click="false">
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
+            <v-icon left>mdi-file-chart</v-icon>
+            Generate Report
+            <v-icon right>mdi-menu-down"></v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
         <v-text-field
-          v-model="search"
-          class="w-auto mr-4"
-          density="compact"
-          label="Search Violation"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo-filled"
-          flat
+          v-model="studentIdForReport"
+          label="Enter Student ID"
+          prepend-icon="mdi-account"
+          class="mt-4"
           hide-details
-          single-line
-          style="max-width: 500px;"
         ></v-text-field>
+      </v-list-item>
 
-        <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark>
-          <v-icon left>mdi-plus</v-icon>
-          Add Violation
-        </v-btn>
-        <v-btn @click="navigateToArchive" class="mb-2 rounded-l add-record-button mr-2" dark>
-          <v-icon left>mdi-archive</v-icon>
-          Archive
-        </v-btn>
-        <v-btn @click="openPolicy" class="mb-2 rounded-l add-record-button mr-2">
-          <v-icon left>mdi-lightbulb</v-icon>
-          Policy
-        </v-btn>
-    <!-- Report Generation Dropdown -->
-     
-    <v-menu offset-y close-on-content-click="false">
-      <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
-          <v-icon left>mdi-file-chart</v-icon>
-          Generate Report
-          <v-icon right>mdi-menu-down"></v-icon>
-        </v-btn>
-      </template>
-      <v-list>
-        <v-list-item>
-      <v-text-field
-        v-model="studentIdForReport"
-        label="Enter Student ID"
-        prepend-icon="mdi-account"
-        class="mt-4"
-        hide-details
-      ></v-text-field>
+      <v-list-item>
+      <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
+        <v-icon left>mdi-file-chart</v-icon>
+        Generate Report by Student ID
+      </v-btn>
     </v-list-item>
-            <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
+
+    <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
           <v-list-item-icon>
           </v-list-item-icon>
           <v-list-item-title>Generate Daily Report</v-list-item-title>
@@ -78,14 +86,10 @@
         Generate Report by Student ID
       </v-btn>
     </v-list-item>
-
-      </v-list>
+</v-list>
     </v-menu>
   </v-toolbar>
-
-
-      <!-- New Violation Dialog -->
-      <v-dialog v-model="dialog" max-width="1000px">
+  <v-dialog v-model="dialog" max-width="1000px">
         <v-card>
           <v-card-title>
             <span class="text-h6" style="color: #ffffff">New Violation Record</span>
@@ -237,106 +241,35 @@
       </v-dialog>
     </template>
 
-    <!-- <template v-slot:item="{ item }">
-      <tr>
-        <td>{{ item.student_id }}</td>
-        <td>{{ item.full_name }}</td>
-        <td>{{ item.case_title }}</td>
-        <td>{{ item.case_sanction }}</td>
-        <td>{{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}</td>
-        <td>{{ formatDate(item.case_date) }}</td>
-        <td>
-          <v-icon class="me-2" size="small" style="color: #2F3F64" @click="viewRecords(item)">mdi-eye</v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="editRecord(item)">mdi-pencil</v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.cases_id)">mdi-archive</v-icon>
-
-        </td>
-      </tr> -->
-
-      <v-card>
-<<<<<<< Updated upstream
-  <v-card-title class="text-h6 font-weight-bold">
-=======
-  <v-card-title class="text-h5 font-weight-bold">
->>>>>>> Stashed changes
-    <span>Student List</span>
-  </v-card-title>
-  <v-divider></v-divider>
-  <v-card-text>
-    <v-row class="font-weight-bold">
-<<<<<<< Updated upstream
-      <v-col cols="4">Student ID</v-col>
-      <v-col cols="4">Student Name</v-col>
-      <v-col cols="4">Student Guidance Status</v-col>
-=======
-      <v-col cols="6">Student ID</v-col>
-      <v-col cols="6">Student Name</v-col>
->>>>>>> Stashed changes
-    </v-row>
-    <v-divider></v-divider>
-    <!-- List of unique student IDs for Violations -->
     <v-list>
       <v-list-item-group v-for="student in uniqueStudentIds" :key="student.student_id">
-        <v-list-item
-          @click="viewStudentViolations(student.student_id)"
-          class="list-item"
-        >
+        <v-list-item @click="viewStudentViolations(student.student_id)">
           <v-list-item-content>
-            <v-row>
-<<<<<<< Updated upstream
-              <v-col cols="4">{{ student.student_id }}</v-col>
-              <v-col cols="5">{{ student.full_name }}</v-col>
-              <v-col cols="1" class="caseStatusClass(student.student_id)">
-              {{ caseStatus(student.student_id) }}
-            </v-col>
-=======
-              <v-col cols="6">{{ student.student_id }}</v-col>
-              <v-col cols="6">{{ student.full_name }}</v-col>
->>>>>>> Stashed changes
-            </v-row>
+            <v-list-item-title>{{ student.student_id }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
     </v-list>
-  </v-card-text>
-</v-card>
-
-
-
-
   </v-data-table>
 
-  <!-- Dialog for viewing all violations of the selected student -->
   <v-dialog v-model="viewingRecords" max-width="600px">
-<<<<<<< Updated upstream
     <v-card>
-      <v-card-title>
-        Violation Details for Student ID: {{ selectedStudentId }}
-      </v-card-title>
+        <v-card-title>Violation Details for Student ID: {{ selectedStudentId }}</v-card-title>
       <v-card-text v-if="selectedStudentViolations.length">
         <v-list>
-          <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
-            <v-list-item :class="caseStatusClass(caseItem)">
+            <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
+            <v-list-item>
               <v-list-item-content>
-                <v-list-item-title style="padding: 0.3rem;">
-                  <strong>Case Title:</strong> {{ caseItem.case_title }}
-                </v-list-item-title>
-                <!-- <v-list-item-subtitle style="padding: 0.3rem;">
-                  <strong>Description:</strong> {{ caseItem.case_description }}
-                </v-list-item-subtitle> -->
-                <v-list-item-subtitle style="padding: 0.3rem;">
-                  <strong>Sanction:</strong> {{ caseItem.case_sanction }}
-                </v-list-item-subtitle>
-                <v-list-item-subtitle style="padding: 0.3rem;">
-                  <strong>Date:</strong> {{ formatDate(caseItem.case_date) }}
-                </v-list-item-subtitle>
+                <v-list-item-title><strong>Case Title:</strong> {{ caseItem.case_title }}</v-list-item-title>
+                <v-list-item-subtitle><strong>Description:</strong> {{ caseItem.case_description }}</v-list-item-subtitle>
+                <v-list-item-subtitle><strong>Sanction:</strong> {{ caseItem.case_sanction }}</v-list-item-subtitle>
+                <v-list-item-subtitle><strong>Date:</strong> {{ formatDate(caseItem.case_date) }}</v-list-item-subtitle>
               </v-list-item-content>
-              <v-list-item-action style="padding: 0.3rem;">
-                <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
+              <v-list-item-action>
+                <v-btn @click="editCase(caseItem)" class="mr-2" small> Edit </v-btn>
                 <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
               </v-list-item-action>
             </v-list-item>
-            <hr>
           </v-list-item-group>
         </v-list>
       </v-card-text>
@@ -346,51 +279,16 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-=======
-  <v-card>
-    <v-card-title>Violation Details for Student ID: {{ selectedStudentId }}</v-card-title>
-    <v-card-text v-if="selectedStudentViolations.length">
-      <v-list>
-        <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title style="padding: 0.3rem;">
-                <strong>Case Title:</strong> {{ caseItem.case_title }}
-              </v-list-item-title>
-              <v-list-item-subtitle style="padding: 0.3rem;">
-                <strong>Sanction:</strong> {{ caseItem.case_sanction }}
-              </v-list-item-subtitle>
-              <v-list-item-subtitle style="padding: 0.3rem;">
-                <strong>Date:</strong> {{ formatDate(caseItem.case_date) }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action class="d-flex justify-end" style="padding: 0.3rem;">
-              <v-btn @click="editRecord(caseItem)" class="mr-2" small>Edit</v-btn>
-              <v-btn @click="archiveCase(caseItem.cases_id)" small>Archive</v-btn>
-            </v-list-item-action>
-          </v-list-item>
-          <hr>
-        </v-list-item-group>
-      </v-list>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
-
->>>>>>> Stashed changes
 
 </template>
-
+  
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
-
+  
 export default {
   data() {
     return {
@@ -425,82 +323,36 @@ export default {
       viewingRecords: false,
     };
   },
-
-
+  
+  
   mounted() {
     this.fetchViolations();
   },
   computed: {
     displayedViolations() {
-      const searchTerm = this.search.toLowerCase();
+        const searchTerm = this.search.toLowerCase();
       return this.cases.filter(violation =>
         violation.student_id.toLowerCase().includes(searchTerm)
       );
     },
     uniqueStudentIds() {
-<<<<<<< Updated upstream
-    const uniqueStudents = {};
-  
-    this.cases.forEach(cases => {
-      const studentId = cases.student_profile.student_id;
-      const fullName = `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim();
-  
-      if (!uniqueStudents[studentId]) {
-        // Determine case status: "Not-Cleared" if any case is not cleared (case_status === 0)
-        const caseStatus = this.cases.some(c => c.student_profile.student_id === studentId && c.case_status === 0) 
-                          ? 'Not-Cleared' 
-                          : 'Cleared';
-  
-        uniqueStudents[studentId] = { 
-          student_id: studentId, 
-          full_name: fullName, 
-          case_status: caseStatus 
-        };
-      }
-    });
-  
-    return Object.values(uniqueStudents);
+      const uniqueIds = new Set(this.cases.map(item => item.student_id));
+      return Array.from(uniqueIds).map(id => ({ student_id: id }));
+    }
   },
-  
-    groupedCases() {
-        return this.groupCasesByStudentId();
-      },
-    
-    },
-=======
-    const studentMap = new Map();
-    this.cases.forEach((caseItem) => {
-      if (!studentMap.has(caseItem.student_id)) {
-        studentMap.set(caseItem.student_id, {
-          student_id: caseItem.student_id,
-          full_name: caseItem.full_name,
-        });
-      }
-    });
-    return Array.from(studentMap.values());
-  }
-},
->>>>>>> Stashed changes
-
   methods: {
 
-    caseStatus(studentId) {
-      return this.cases.some(c => c.student_profile.student_id === studentId && c.case_status === 0)
-        ? 'Not-Cleared'
-        : 'Cleared';
-    },
-
-    caseStatusClass(studentId) {
-      return this.cases.some(c => c.student_profile.student_id === studentId && c.case_status === 0)
-        ? 'not-cleared'
-        : 'cleared';
-    },
-    
     viewRecords(item) {
       console.log('Viewing records for ID:', item.student_id);
       this.editedItems = item.all_cases || []; // Set to the array of cases for the student
       this.viewingRecords = true;
     },
+
+    viewRecords(item) {
+  console.log('Viewing records for ID:', item.student_id);
+  this.editedItems = item.all_cases || []; // Set to the array of cases for the student
+  this.viewingRecords = true;
+},
 
     groupCasesByStudentId() {
     const grouped = {};
@@ -667,7 +519,6 @@ export default {
           console.error('Error fetching violations:', error.response ? error.response.data : error.message);
         });
     },
-
     viewStudentViolations(studentId) {
       this.selectedStudentId = studentId;
       this.selectedStudentViolations = this.cases.filter(caseItem => caseItem.student_id === studentId);
@@ -679,61 +530,6 @@ export default {
     },
 
     saveNewRecord() {
-<<<<<<< Updated upstream
-    if (this.editedItem.id) {
-      // Update existing record
-      this.updateRecord();
-    } else {
-      // Create new record
-      this.createRecord();
-    }
-  },
-
-  createRecord() {
-    const dataToSend = {
-      student_id: this.editedItem.student_id,
-      case_title: this.editedItem.case_title,
-      case_description: this.editedItem.case_description,
-      case_sanction: this.editedItem.case_sanction,
-      case_status: 0
-    };
-
-    axios.post('http://your-api-url/cases', dataToSend)
-      .then(response => {
-        this.cases.push(response.data.case);
-        this.closeDialog();
-        Swal.fire('Saved!', 'Record saved successfully!', 'success');
-      })
-      .catch(error => {
-        console.error('Error saving new record:', error);
-      });
-  },
-
-archiveCase(caseId) {
-    this.viewingRecords = false;  // Close the dialog after action
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to archive this record?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      confirmButtonColor: "#4CAF50",
-      cancelButtonText: 'No',
-      cancelButtonColor: "#F44336",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        console.log('Received ID for archiving:', caseId);
-        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
-          .then(response => {
-            console.log('Record archived successfully:', response.data);
-            // Remove the archived item from the violations list
-            this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
-            Swal.fire('Archived!', 'Record archived successfully!', 'success');
-          })
-          .catch(error => {
-            console.error('Error archiving record:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Error archiving record', 'error');
-=======
       const dataToSend = {
         student_id: this.editedItem.student_id || '',
         case_title: this.editedItem.case_title,
@@ -763,13 +559,7 @@ archiveCase(caseId) {
             console.log('Record saved successfully:', response.data);
             this.cases.push(response.data.case);
             this.closeDialog();
-            Swal.fire({
-        title: 'Saved',
-        text: 'Record Saved Successfully!',
-        icon: 'success',
-        showConfirmButton: false, 
-        timer: 3000, 
-        });
+            Swal.fire('Saved!', 'Record saved successfully!', 'success');
           })
           .catch(error => {
             console.error('Error saving new record:', error.response ? error.response.data : error.message);
@@ -777,49 +567,45 @@ archiveCase(caseId) {
         title: 'Error',
         text: 'Failed to Save Violation record',
         icon: 'error',
-        showConfirmButton: false, 
-        timer: 3000, 
+        confirmButtonColor: '#F44336',
+        confirmButtonText: '<span style="color: #ffffff;">OK</span>',
 
       });
->>>>>>> Stashed changes
           });
+      } else {
+        console.log('Form validation failed');
       }
-    });
-  },
+    }
+  });
+},
 
-
-<<<<<<< Updated upstream
-=======
-archiveCase(caseId) {
-    this.viewingRecords = false;  // Close the dialog after action
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to archive this record?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      confirmButtonColor: "#4CAF50",
-      cancelButtonText: 'No',
-      cancelButtonColor: "#F44336",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        console.log('Received ID for archiving:', caseId);
-        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
-          .then(response => {
-            console.log('Record archived successfully:', response.data);
-            // Remove the archived item from the violations list
-            this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
-            Swal.fire('Archived!', 'Record archived successfully!', 'success');
-          })
-          .catch(error => {
-            console.error('Error archiving record:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Error archiving record', 'error');
-          });
-      }
-    });
-  },
-
->>>>>>> Stashed changes
+ archiveCase(caseId) {
+  this.dialog = false;
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to archive this record?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        confirmButtonColor: "#4CAF50",
+        cancelButtonText: 'No',
+        cancelButtonColor: "#F44336",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          console.log('Received ID for archiving:', caseId);
+          axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
+            .then(response => {
+              console.log('Record archived successfully:', response.data);
+              this.editedItems = this.editedItems.filter(record => record.cases_id !== caseId);
+              Swal.fire('Archived!', 'Record archived successfully!', 'success');
+            })
+            .catch(error => {
+              console.error('Error archiving record:', error.response ? error.response.data : error.message);
+              Swal.fire('Error', 'Error archiving record', 'error');
+            });
+        }
+      });
+    },
     openDialog() {
       this.editedItem = {
         id: null,
@@ -869,30 +655,24 @@ archiveCase(caseId) {
  
 </script>
 
-<<<<<<< Updated upstream
+<style>
+.v-card-title {
+  text-align: center;
+  background-color: #2F3F64;
+  color: #f0f0f0;
+}
 
-=======
->>>>>>> Stashed changes
-<style scoped>
-  .v-card-title {
-    background-color: #2F3F64;
-    color: white;
-    padding: 16px;
-    border-radius: 4px 4px 0 0;
-    text-align: center;
-  }
-  .v-divider {
-    margin: 8px 0;
-  }
-  .font-weight-bold {
-    font-weight: bold;
-  }
-  .list-item {
-    background-color: #f5f5f5; /* Grey background */
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  .list-item:hover {
-    background-color: #e3f2fd; /* Light blue background on hover */
-  }
+.v-card:hover {
+  background-color: #f0f0f0;
+}
+
+.add-record-button {
+  background-color: #2F3F64;
+  border-radius: 5px;
+  color: white;
+}
+
+.add-record-button:hover {
+  background-color: var(--grey);
+}
 </style>
