@@ -172,7 +172,7 @@ export default {
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-      axios.get('http://26.81.173.255:8000/api/examinations')
+      axios.get('http://192.168.16.165:8000/api/examinations')
         .then(response => {
           console.log(response.data);
           this.examinations = response.data.examinations;
@@ -220,7 +220,7 @@ export default {
         if (result.isConfirmed) {
           if (this.editedItem.exam_id) {
             // Update existing record
-            axios.put(`http://26.81.173.255:8000/api/examinations/${this.editedItem.exam_id}`, this.editedItem)
+            axios.put(`http://192.168.16.165:8000/api/examinations/${this.editedItem.exam_id}`, this.editedItem)
               .then(response => {
                 this.fetchExam();
                 this.closeDialog();
@@ -246,7 +246,7 @@ export default {
               });
           } else {
             // Add new record
-            axios.post('http://26.81.173.255:8000/api/examinations', this.editedItem)
+            axios.post('http://192.168.16.165:8000/api/examinations', this.editedItem)
               .then(response => {
                 this.examinations.push(response.data);
                 this.fetchExam();
@@ -254,7 +254,7 @@ export default {
                 Swal.fire({
         title: 'Success',
         text: 'Record Saved Successfully!',
-        icon: 'error',
+        icon: 'success',
         showConfirmButton: false,
         timer: 3000,
 
@@ -287,7 +287,7 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.post(`http://26.81.173.255:8000/api/examinations/${id}/archive`)
+          axios.post(`http://192.168.16.165:8000/api/examinations/${id}/archive`)
             .then(response => {
               console.log('Examination archived successfully:', response.data);
               this.updateExaminations();
@@ -316,7 +316,7 @@ export default {
     },
     archiveConfirmed() {
       if (this.selectedExamId !== null) {
-        axios.post(`http://26.81.173.255:8000/api/examinations/${this.selectedExamId}/archive`)
+        axios.post(`http://192.168.16.165:8000/api/examinations/${this.selectedExamId}/archive`)
           .then(response => {
             console.log('Examination archived successfully:', response.data);
             this.updateExaminations();
@@ -345,7 +345,7 @@ export default {
     },
     updateExaminations() {
       // Method to refresh the list of examinations or update the local state
-      axios.get('http://26.81.173.255:8000/api/examinations')
+      axios.get('http://192.168.16.165:8000/api/examinations')
         .then(response => {
           this.examinations = response.data.examinations;
         })

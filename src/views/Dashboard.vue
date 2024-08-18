@@ -21,14 +21,14 @@
         <div class="summary-item">
           <span class="material-icons">check_circle</span>
           <div class="summary-text">
-            <h4>Total Cleared</h4>
+            <h4>Total Cleared Cases</h4>
             <p>{{ totalCleared }}</p>
           </div>
         </div>
         <div class="summary-item">
           <span class="material-icons">cancel</span>
           <div class="summary-text">
-            <h4>Total Not Cleared</h4>
+            <h4>Total Uncleared Cases</h4>
             <p>{{ totalNotCleared }}</p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default {
   methods: {
     async fetchSummary() {
       try {
-        const response = await axios.get('http://26.81.173.255:8000/api/vio/summary');
+        const response = await axios.get('http://192.168.16.165:8000/api/vio/summary');
         const data = response.data;
 
         this.totalCases = data.totalCases;
@@ -105,7 +105,7 @@ export default {
     async fetchData() {
       try {
         // Fetch data for Junior High
-        const responseJHS = await axios.get('http://26.81.173.255:8000/api/vio/getJHS');
+        const responseJHS = await axios.get('http://192.168.16.165:8000/api/vio/getJHS');
         const fetchedJHSData = responseJHS.data.data;
 
         // Calculate totals for Junior High
@@ -133,7 +133,7 @@ export default {
         this.totalNotCleared += totalNotClearedJHS;
 
         // Fetch data for Senior High
-        const responseSHS = await axios.get('http://26.81.173.255:8000/api/vio/getSHS');
+        const responseSHS = await axios.get('http://192.168.16.165:8000/api/vio/getSHS');
         const fetchedSHSData = responseSHS.data.data;
 
         // Process data for Senior High

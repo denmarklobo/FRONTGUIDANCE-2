@@ -65,8 +65,8 @@ const totalExaminations = ref(0);
 const fetchTotals = async () => {
   try {
     const [consultationsResponse, examinationsResponse] = await Promise.all([
-      axios.get('http://26.81.173.255:8000/api/consultations/count'),
-      axios.get('http://26.81.173.255:8000/api/exam/count'),
+      axios.get('http://192.168.16.165:8000/api/consultations/count'),
+      axios.get('http://192.168.16.165:8000/api/exam/count'),
     ]);
 
     totalConsultations.value = consultationsResponse.data.total;
