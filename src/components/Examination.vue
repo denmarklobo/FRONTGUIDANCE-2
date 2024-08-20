@@ -42,20 +42,21 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-text-field 
+              <!-- <v-text-field 
                 v-model="editedItem.exam_score" 
                 label="Exam Score*" 
                 prepend-icon="mdi-format-list-numbered" 
                 required 
                 @input="handleScoreChange"
-              ></v-text-field>
+              ></v-text-field> -->
             </v-col>
             <v-col cols="12">
               <v-text-field
-                v-model="editedItem.exam_remarks"
-                label="Remarks*"
-                prepend-icon="mdi-security"
-                readonly
+              v-model="editedItem.exam_remarks"
+                label="Remarks"
+                prepend-icon="mdi-note"
+                required
+                type="text"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
@@ -85,7 +86,7 @@
               <p><strong>Student ID:</strong> {{ editedItem.student_id || 'N/A' }}</p>
               <!-- <p><strong>Student Name:</strong> {{ editedItem.student_name }}</p> -->
               <!-- <p><strong>Exam Title:</strong> {{ editedItem.exam_title }}</p> -->
-              <p><strong>Exam Score:</strong> {{ editedItem.exam_score }}</p> <!-- Corrected -->
+              <!-- <p><strong>Exam Score:</strong> {{ editedItem.exam_score }}</p> Corrected -->
               <p><strong>Exam Remarks:</strong> {{ editedItem.exam_remarks }}</p> <!-- Corrected -->
               <p><strong>Exam Date:</strong> {{ formatDate(editedItem.exam_date) }}</p>
             </v-card-text>
@@ -105,7 +106,7 @@
         <td>{{ item.student_id }}</td>
         <!-- <td>{{ item.student_name }}</td> -->
         <!-- <td>{{ item.exam_title }}</td> -->
-        <td>{{ item.exam_score }}</td>
+        <!-- <td>{{ item.exam_score }}</td> -->
         <td>{{ item.exam_remarks }}</td>
         <td>{{ formatDate(item.exam_date) }}</td>
         <td>
@@ -131,7 +132,7 @@ export default {
         student_id: '',
         // student_name: '',
         // exam_title: '',
-        exam_score: '',
+        // exam_score: '',
         exam_remarks: '',
         exam_date: this.getCurrentDate(),
       },
@@ -140,7 +141,7 @@ export default {
         { title: 'Student ID', key: 'student_id' },
         // { title: 'Name', key: 'student_name' },
         // { title: 'Exam Title', key: 'exam_title' },
-        { title: 'Score', key: 'exam_score' },
+        // { title: 'Score', key: 'exam_score' },
         { title: 'Assessment', key: 'exam_remarks' },
         { title: 'Date', key: 'exam_date' },
         { title: 'Actions', sortable: false },
@@ -173,9 +174,9 @@ export default {
       if (score >= 60) return 'Poor';
       return 'Very Poor';
     },
-    handleScoreChange() {
-      this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
-    },
+    // handleScoreChange() {
+    //   this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
+    // },
 
     onlyDigits(event) {
       // Prevent any non-digit characters
@@ -203,7 +204,7 @@ export default {
       this.editedItem = {
         student_id: '',
         // exam_title: '',
-        exam_score: '',
+        // exam_score: '',
         exam_remarks: '',
         exam_date: this.getCurrentDate(),
       };
@@ -222,7 +223,7 @@ export default {
       this.dialog = true;
     },
     saveNewRecord() {
-      this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
+      // this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
       this.viewingRecords = false;
       this.dialog= false; 
       Swal.fire({
