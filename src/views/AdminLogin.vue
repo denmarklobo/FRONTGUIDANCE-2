@@ -9,7 +9,6 @@
                 <v-col cols="12" md="5" class="rectangle-color">
                   <v-card-text class="white--text mt-16 pt-14 mx-auto">
                     <div class="logo-container">
-                      <!-- Logo positioned at the right side -->
                       <img src="/src/assets/schoolLogo3.png" max-height="900" max-width="900" class="logo">
                     </div>
                     <div class="text-container text-center">
@@ -41,16 +40,22 @@
                       />
                       <v-text-field
                         v-model="password"
+                        :type="showPassword ? 'text' : 'password'"
                         id="password"
                         label="Password"
                         name="Password"
                         prepend-icon="mdi-lock"
-                        type="password"
                         color="var(--dark)"
                         required
-                      />
+                      >
+                        <template #append>
+                          <v-icon @click="togglePasswordVisibility" class="cursor-pointer">
+                            {{ showPassword ? 'mdi-eye-off' : 'mdi-eye' }}
+                          </v-icon>
+                        </template>
+                      </v-text-field>
                       <div class="text-center pb-2 mx-md-auto">
-                      <v-btn rectangle color="var(--dark)" class="login-btn" @click="handleLogin" style="color:white;"> Login</v-btn>
+                        <v-btn rectangle color="var(--dark)" class="login-btn" @click="handleLogin" style="color:white;"> Login</v-btn>
                       </div>
                     </v-form>
                   </v-card-text>
@@ -65,6 +70,7 @@
   </v-app>
 </template>
 
+
 <script>
 import axios from 'axios';
 import PolicyNotice from '../components/PolicyNotice.vue';
@@ -76,12 +82,16 @@ export default {
     return {
       email: '',
       password: '',
+      showPassword: false,
       step: 0 // Handles the v-window model
     };
   },
   methods: {
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  },  
   handleLogin() {
-    axios.post('http://127.0.0.1:8000/api/authlogin', {
+    axios.post('http://26.81.173.255:8000/api/authlogin', {
       email: this.email,
       password: this.password,
     })

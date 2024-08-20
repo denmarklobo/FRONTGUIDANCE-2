@@ -569,7 +569,7 @@ export default {
 },
 
     fetchViolations() {
-      axios.get('http://127.0.0.1:8000/api/cases')
+      axios.get('http://26.81.173.255:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
           this.cases = response.data.cases.map((cases) => ({
@@ -653,7 +653,7 @@ archiveCase(caseId) {
     }).then((result) => {
       if (result.isConfirmed) {
         console.log('Received ID for archiving:', caseId);
-        axios.post('http://127.0.0.1:8000/api/cases/arch', { cases_id: caseId })
+        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
           .then(response => {
             console.log('Record archived successfully:', response.data);
             // Remove the archived item from the violations list

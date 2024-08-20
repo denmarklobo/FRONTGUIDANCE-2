@@ -9,7 +9,7 @@ import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
 import axios from "axios"
 
-axios.defaults.baseURL= 'http://127.0.0.1:8000/api';
+axios.defaults.baseURL= 'http://26.81.173.255:8000/api';
 
 loadFonts()
 

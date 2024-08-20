@@ -94,7 +94,7 @@ export default {
   },
   methods: {
      fetchArchivedConsultations() {
-      axios.get('http://127.0.0.1:8000/api/consultations/archived')
+      axios.get('http://26.81.173.255:8000/api/consultations/archived')
         .then(response => {
           // Update the component's data with the fetched consultations
           this.archivedConsultations = response.data.consultations;
@@ -142,7 +142,7 @@ export default {
     // Confirm with the user before proceeding
 
         // Send a POST request to the server
-        axios.put('http://127.0.0.1:8000/api/consultation/restore', { con_id })
+        axios.put('http://26.81.173.255:8000/api/consultation/restore', { con_id })
             .then(response => {
                 console.log('Record restored successfully:', response.data);
                 this.fetchArchivedConsultations(); // Refresh the list of archived consultations
