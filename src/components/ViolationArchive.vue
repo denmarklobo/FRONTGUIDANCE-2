@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     fetchArchivedViolations() {
-      axios.get('http://192.168.16.165:8000/api/archived')
+      axios.get('http://127.0.0.1:8000/api/archived')
         .then(response => {
           this.archivedViolations = response.data.archivedViolations || [];
         })
@@ -109,7 +109,7 @@ export default {
       // console.log('Received ID for restoring:', cases_id);
       // const isConfirmed = confirm('Are you sure you want to restore this record?');
       // if (isConfirmed) {
-        axios.post('http://192.168.16.165:8000/api/cases/restore', { cases_id })
+        axios.post('http://127.0.0.1:8000/api/cases/restore', { cases_id })
           .then(response => {
             console.log('Record restored successfully:', response.data);
             this.fetchArchivedViolations(); // Refresh the list of archived violations

@@ -81,7 +81,7 @@ export default {
   },
   methods: {
   handleLogin() {
-    axios.post('http://192.168.16.165:8000/api/authlogin', {
+    axios.post('http://127.0.0.1:8000/api/authlogin', {
       email: this.email,
       password: this.password,
     })

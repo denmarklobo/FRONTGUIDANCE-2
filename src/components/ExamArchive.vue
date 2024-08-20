@@ -109,7 +109,7 @@ export default {
   },
   methods: {
     fetchexam() {
-      axios.get('http://192.168.16.165:8000/api/examinations/arch')
+      axios.get('http://127.0.0.1:8000/api/examinations/arch')
         .then(response => {
           console.log(response.data);
             this.examinations = response.data.examinations;
@@ -152,7 +152,7 @@ export default {
         cancelButtonColor: "#F44336",
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.post(`http://192.168.16.165:8000/api/examinations/${examId}/restore`) // Use examId here
+            axios.post(`http://127.0.0.1:8000/api/examinations/${examId}/restore`) // Use examId here
                 .then(() => {
                     this.examinations = this.examinations.filter(e => e.exam_id !== examId); // Use examId here
                     Swal.fire({
