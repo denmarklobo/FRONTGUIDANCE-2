@@ -55,7 +55,7 @@ const chartOptions = ref({
 // Fetch data from the server
 const fetchData = async () => {
   try {
-    const response = await axios.get('http://26.81.173.255:8000/api/consultations/countall');
+    const response = await axios.get('http://26.11.249.89:8000/api/consultations/countall');
     const data = response.data.data;
 
     // Update chart data

@@ -20,11 +20,27 @@
           style="max-width: 500px;"
         ></v-text-field>
 
-        <v-dialog v-model="dialog" max-width="1000px">
-          <template v-slot:activator="{ props }">
-            <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark v-bind="props" prepend-icon="mdi-plus">Add Record</v-btn>
-            <v-btn @click="openArchives" class="mb-2 rounded-l add-record-button" to="/examarchive" prepend-icon="mdi-archive">View Archive</v-btn>
-          </template>
+        <v-btn @click="openAddDialog" class="mb-2 rounded-l add-record-button mr-2" dark prepend-icon="mdi-plus">Add Record</v-btn>
+        <v-btn @click="openArchives" class="mb-2 rounded-l add-record-button" to="/examarchive" prepend-icon="mdi-archive">View Archive</v-btn>
+      </v-toolbar>
+    </template>
+
+    <template v-slot:item="{ item }">
+      <tr>
+        <td>{{ item.student_id }}</td>
+        <td>{{ item.exam_title }}</td>
+        <td>{{ item.exam_remarks }}</td>
+        <td>{{ formatDate(item.exam_date) }}</td>
+        <td>
+          <v-icon style="color: #2F3F64" @click="viewRecords(item)"><span class="mdi mdi-eye-circle fs-5 mr-2"></span></v-icon>
+          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.exam_id)" class="mdi mdi-archive fs-5"></v-icon>
+        </td>
+      </tr>
+    </template>
+  </v-data-table>
+
+  <!-- Add New Record Dialog -->
+  <v-dialog v-model="addDialog" max-width="1000px">
     <v-card>
       <v-card-title>Add New Exam Record</v-card-title>
       <v-card-text>
@@ -42,22 +58,10 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12">
-              <!-- <v-text-field 
-                v-model="editedItem.exam_score" 
-                label="Exam Score*" 
-                prepend-icon="mdi-format-list-numbered" 
-                required 
-                @input="handleScoreChange"
-              ></v-text-field> -->
+              <v-text-field v-model="editedItem.exam_title" label="Exam Title*" prepend-icon="mdi-book" required></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-              v-model="editedItem.exam_remarks"
-                label="Remarks"
-                prepend-icon="mdi-note"
-                required
-                type="text"
-              ></v-text-field>
+              <v-textarea v-model="editedItem.exam_remarks" label="Remarks*" prepend-icon="mdi-pencil" required></v-textarea>
             </v-col>
             <v-col cols="12">
               <v-text-field
@@ -73,83 +77,99 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="saveNewRecord" class="mb-2 rounded-l add-record-button" dark>Save</v-btn>
-        <v-btn @click="closeDialog" class="mb-2 rounded-l add-record-button" dark>Cancel</v-btn>
+        <v-btn @click="closeAddDialog" class="mb-2 rounded-l add-record-button" dark>Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
-      </v-toolbar>
 
-        <v-dialog v-model="viewingRecords" max-width="600px">
-          <v-card>
-            <v-card-title>Exam Details</v-card-title>
-            <v-card-text v-if="editedItem">
-              <p><strong>Student ID:</strong> {{ editedItem.student_id || 'N/A' }}</p>
-              <!-- <p><strong>Student Name:</strong> {{ editedItem.student_name }}</p> -->
-              <!-- <p><strong>Exam Title:</strong> {{ editedItem.exam_title }}</p> -->
-              <!-- <p><strong>Exam Score:</strong> {{ editedItem.exam_score }}</p> Corrected -->
-              <p><strong>Exam Remarks:</strong> {{ editedItem.exam_remarks }}</p> <!-- Corrected -->
-              <p><strong>Exam Date:</strong> {{ formatDate(editedItem.exam_date) }}</p>
-            </v-card-text>
+  <!-- Edit Record Dialog -->
+  <v-dialog v-model="editDialog" max-width="1000px">
+    <v-card>
+      <v-card-title>Edit Exam Record</v-card-title>
+      <v-card-text>
+        <v-container>
+          <v-row dense>
+            <v-col cols="12">
+              <v-text-field
+                v-model="editedItem.student_id"
+                label="Student ID*"
+                prepend-icon="mdi-account"
+                required
+                type="text"
+                @keypress="onlyDigits($event)"
+                @input="handleInput($event)"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field v-model="editedItem.exam_title" label="Exam Title*" prepend-icon="mdi-book" required></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-textarea v-model="editedItem.exam_remarks" label="Remarks*" prepend-icon="mdi-pencil" required></v-textarea>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field
+                v-model="editedItem.exam_date"
+                label="Exam Date*"
+                prepend-icon="mdi-calendar"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="updateRecord" class="mb-2 rounded-l add-record-button" dark>Save</v-btn>
+        <v-btn @click="closeEditDialog" class="mb-2 rounded-l add-record-button" dark>Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-              <v-btn @click="editItem(editedItem)" class="mb-2 rounded-l add-record-button" dark>Edit</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-
-    </template>
-
-    <template v-slot:item="{ item }">
-      <tr>
-        <td>{{ item.student_id }}</td>
-        <!-- <td>{{ item.student_name }}</td> -->
-        <!-- <td>{{ item.exam_title }}</td> -->
-        <!-- <td>{{ item.exam_score }}</td> -->
-        <td>{{ item.exam_remarks }}</td>
-        <td>{{ formatDate(item.exam_date) }}</td>
-        <td>
-          <v-icon style="color: #2F3F64" @click="viewRecords(item)"><span class= "mdi mdi-eye-circle fs-5 mr-2"></span></v-icon>
-          <v-icon size="small" style="color: #2F3F64" @click="archiveItem(item.exam_id)" class="mdi mdi-archive fs-5"></v-icon>
-        </td>
-      </tr>
-    </template>
-  </v-data-table>
+  <!-- View Record Dialog -->
+  <v-dialog v-model="viewingRecords" max-width="600px">
+    <v-card>
+      <v-card-title>Exam Details</v-card-title>
+      <v-card-text v-if="editedItem">
+        <p><strong>Student ID:</strong> {{ editedItem.student_id || 'N/A' }}</p>
+        <p><strong>Exam Title:</strong> {{ editedItem.exam_title }}</p>
+        <p><strong>Exam Remarks:</strong> {{ editedItem.exam_remarks }}</p>
+        <p><strong>Exam Date:</strong> {{ formatDate(editedItem.exam_date) }}</p>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+        <v-btn @click="openEditDialog(editedItem)" class="mb-2 rounded-l add-record-button" dark>Edit</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-  
+
 export default {
   data() {
     return {
       examinations: [],
-      value: null,
-      dialog: false,
+      addDialog: false,
+      editDialog: false,
       editedItem: {
+        exam_id: null,
         student_id: '',
-        // student_name: '',
-        // exam_title: '',
-        // exam_score: '',
+        exam_title: '',
         exam_remarks: '',
-        exam_date: this.getCurrentDate(),
+        exam_date: '', // This will be set when editing
       },
       search: '',
       headers: [
         { title: 'Student ID', key: 'student_id' },
-        // { title: 'Name', key: 'student_name' },
-        // { title: 'Exam Title', key: 'exam_title' },
-        // { title: 'Score', key: 'exam_score' },
+        { title: 'Exam Title', key: 'exam_title' },
         { title: 'Assessment', key: 'exam_remarks' },
         { title: 'Date', key: 'exam_date' },
         { title: 'Actions', sortable: false },
       ],
       viewingRecords: false,
-      selectedExam: null,
-      archiveDialog: false,
-      selectedExamId: null,
     };
   },
   mounted() {
@@ -167,65 +187,54 @@ export default {
     },
   },
   methods: {
-    computeRemarks(score) {
-      if (score >= 90) return 'Excellent';
-      if (score >= 80) return 'Very Good';
-      if (score >= 70) return 'Good';
-      if (score >= 60) return 'Poor';
-      return 'Very Poor';
-    },
-    // handleScoreChange() {
-    //   this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
-    // },
-
     onlyDigits(event) {
-      // Prevent any non-digit characters
       if (!/^\d$/.test(event.key)) {
         event.preventDefault();
       }
     },
     handleInput(event) {
-      // Remove any non-digit characters and limit the length to 12
       const value = event.target.value.replace(/\D/g, '');
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-      axios.get('http://26.81.173.255:8000/api/examinations')
+      axios.get('http://26.11.249.89:8000/api/examinations')
         .then(response => {
-          console.log(response.data);
           this.examinations = response.data.examinations;
         })
         .catch(error => {
-          console.error('Error Fetching violations', error);
+          console.error('Error Fetching examinations', error);
         });
     },
-    openDialog() {
-      this.dialog = true;
+    openAddDialog() {
+      this.addDialog = true;
       this.editedItem = {
+        exam_id: null,
         student_id: '',
-        // exam_title: '',
-        // exam_score: '',
+        exam_title: '',
         exam_remarks: '',
         exam_date: this.getCurrentDate(),
       };
-      this.selectedExam = null; // Reset selectedExam when adding a new record
     },
-    closeDialog() {
-      this.dialog = false;
+    closeAddDialog() {
+      this.addDialog = false;
+    },
+    openEditDialog(exam) {
+      this.editedItem = {
+        ...exam,  // Spread existing exam data
+        exam_date: exam.exam_date // Preserve the existing exam_date
+      };
+      this.editDialog = true;
+    },
+    closeEditDialog() {
+      this.editDialog = false;
     },
     viewRecords(exam) {
-      this.editedItem = { ...exam }; // Ensure editedItem is a copy of the selected exam
+      this.editedItem = { ...exam };
       this.viewingRecords = true;
     },
-    editItem(exam) {
-      this.selectedExam = { ...exam }; // Store the selected exam in selectedExam
-      this.editedItem = { ...exam }; // Load the selected exam's details into editedItem
-      this.dialog = true;
-    },
     saveNewRecord() {
-      // this.editedItem.exam_remarks = this.computeRemarks(this.editedItem.exam_score);
-      this.viewingRecords = false;
-      this.dialog= false; 
+      this.dialog = false;
+      this.addDialog = false;
       Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to save this record?',
@@ -237,59 +246,75 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          if (this.editedItem.exam_id) {
-            // Update existing record
-            axios.put(`http://26.81.173.255:8000/api/examinations/${this.editedItem.exam_id}`, this.editedItem)
-              .then(response => {
-                this.fetchExam();
-                this.closeDialog();
-                Swal.fire({
-        title: 'Updated',
-        text: 'Record Updated Successfully!',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3000,
-      });
-              })
-              .catch(error => {
-                console.error('Error updating record', error);
-                Swal.fire({
-        title: 'Error',
-        text: 'Error Updating Record',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 3000,
-      });
+          axios.post('http://26.11.249.89:8000/api/examinations', this.editedItem)
+            .then(response => {
+              this.examinations.push(response.data);
+              this.fetchExam();
+              this.closeAddDialog();
+              Swal.fire({
+                title: 'Success',
+                text: 'Record Saved Successfully!',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 3000,
               });
-          } else {
-            // Add new record
-            axios.post('http://26.81.173.255:8000/api/examinations', this.editedItem)
-              .then(response => {
-                this.examinations.push(response.data);
-                this.fetchExam();
-                this.closeDialog();
-                Swal.fire({
-        title: 'Success',
-        text: 'Record Saved Successfully!',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3000,
-      });
-              })
-              .catch(error => {
-                console.error('Error fetching record', error);
-                Swal.fire({
-        title: 'Error',
-        text: 'Error Saving New Record',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 3000,
-      });
+            })
+            .catch(error => {
+              console.error('Error saving new record', error);
+              Swal.fire({
+                title: 'Error',
+                text: 'Error saving new record',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 3000,
               });
-          }
+            });
         }
       });
     },
+    updateRecord() {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to update this record?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+    confirmButtonColor: "#4CAF50",
+    cancelButtonText: '<span style="color: #ffffff;">No</span>',
+    cancelButtonColor: "#F44336",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      axios.put(`http://26.11.249.89:8000/api/examinations/${this.editedItem.exam_id}`, {
+        student_id: this.editedItem.student_id,
+        exam_title: this.editedItem.exam_title,
+        exam_remarks: this.editedItem.exam_remarks,
+        // Do not send exam_date to keep it unchanged
+      })
+        .then(response => {
+          this.fetchExam();
+          this.closeEditDialog();
+          Swal.fire({
+            title: 'Updated',
+            text: 'Record Updated Successfully!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        })
+        .catch(error => {
+          console.error('Error updating record', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error updating record',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        });
+    }
+  });
+},
+
     archiveItem(id) {
       Swal.fire({
         title: 'Are you sure?',
@@ -302,74 +327,30 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.post(`http://26.81.173.255:8000/api/examinations/${id}/archive`)
+          console.log(id);
+          axios.post(`http://26.11.249.89:8000/api/examinations/${id}/archive`)
             .then(response => {
-              console.log('Examination archived successfully:', response.data);
-              this.updateExaminations();
+              this.fetchExam();
               Swal.fire({
-        title: 'Archived',
-        text: 'Record Archived Successfully!',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3000,
-      });
+                title: 'Archived',
+                text: 'Record Archived Successfully!',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 3000,
+              });
             })
             .catch(error => {
-              console.error('Error archiving examination:', error.response ? error.response.data : error.message);
+              console.error('Error archiving record', error);
               Swal.fire({
-        title: 'Error',
-        text: 'Error Archiving record',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: 3000,
-      });
+                title: 'Error',
+                text: 'Error archiving record',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 3000,
+              });
             });
         }
       });
-    },
-    archiveConfirmed() {
-      if (this.selectedExamId !== null) {
-        axios.post(`http://26.81.173.255:8000/api/examinations/${this.selectedExamId}/archive`)
-          .then(response => {
-            console.log('Examination archived successfully:', response.data);
-            this.updateExaminations();
-            this.archiveDialog = false;
-            Swal.fire({
-            title: 'Archived',
-            text: 'Record Archived Successfully!',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 3000,
-      });
-          })
-          .catch(error => {
-            console.error('Error archiving examination:', error.response ? error.response.data : error.message);
-            Swal.fire({
-            title: 'Error',
-            text: 'Error archiving record',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 3000,
-      });
-          });
-      }
-    },
-    updateExaminations() {
-      // Method to refresh the list of examinations or update the local state
-      axios.get('http://26.81.173.255:8000/api/examinations')
-        .then(response => {
-          this.examinations = response.data.examinations;
-        })
-        .catch(error => {
-          console.error('Error fetching examinations:', error.response ? error.response.data : error.message);
-          Swal.fire({
-          title: 'Error',
-          text: 'Error fetching examination',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 3000,
-      });
-        });
     },
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString();
@@ -388,6 +369,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style>
 .v-card:hover {

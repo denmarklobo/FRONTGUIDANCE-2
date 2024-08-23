@@ -109,7 +109,7 @@ export default {
   },
   methods: {
     fetchexam() {
-      axios.get('http://26.81.173.255:8000/api/examinations/arch')
+      axios.get('http://26.11.249.89:8000/api/examinations/arch')
         .then(response => {
           console.log(response.data);
             this.examinations = response.data.examinations;
@@ -139,8 +139,9 @@ export default {
       this.editedItem = { ...exam }; // Ensure editedItem is a copy of the selected exam
       this.viewingRecords = true;
     },
-    unarchiveItem(exam) {
-    const examId = exam.exam_id; // Use exam.exam_id here
+    unarchiveItem(examId) {
+    console.log('Received ID for restoring:', examId);
+    // const examId = exam.exam_id; // Use exam.exam_id here
     Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to unarchive this record?',
@@ -152,7 +153,7 @@ export default {
         cancelButtonColor: "#F44336",
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.post(`http://26.81.173.255:8000/api/examinations/${examId}/restore`) // Use examId here
+            axios.post(`http://26.11.249.89:8000/api/examinations/restore`, { examId }) // Use examId here
                 .then(() => {
                     this.examinations = this.examinations.filter(e => e.exam_id !== examId); // Use examId here
                     Swal.fire({

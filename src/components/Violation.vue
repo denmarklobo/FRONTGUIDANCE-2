@@ -89,14 +89,16 @@
           <v-container>
             <v-row dense>
               <v-col cols="12">
-                <v-text-field
+                <!-- <v-text-field -->
+                <v-autocomplete
                   v-model="editedItem.student_id"
                   label="Student ID*"
                   prepend-icon="mdi-account"
                   required
                   type="number"
                   @input="handleInput"
-                ></v-text-field>
+                ></v-autocomplete>
+                <!-- ></v-text-field> -->
               </v-col>
               <v-col cols="12">
                 <v-text-field
@@ -130,16 +132,74 @@
                   ]"
                 ></v-select>
               </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="white" variant="text" @click="saveNewRecord" class="add-record-button">Save</v-btn>
-          <v-btn color="white" variant="text" @click="closeDialog" class="add-record-button">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        </v-row>
+      </v-container>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="white" variant="text" @click="saveNewRecord" class="add-record-button">Save</v-btn>
+      <v-btn color="white" variant="text" @click="closeDialog" class="add-record-button">Cancel</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+    <!-- Edit Violation Dialog -->
+    <v-dialog v-model="editRecordDialog" max-width="1000px">
+  <v-card>
+    <v-card-title>
+      <span class="text-h6" style="color: #ffffff">Edit Violation Record</span>
+    </v-card-title>
+    <v-card-text>
+      <v-container>
+        <v-row dense>
+          <v-col cols="12">
+            <v-text-field
+              v-model="editedItem.student_id"
+              label="Student ID*"
+              prepend-icon="mdi-account"
+              required
+              type="number"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="editedItem.case_title"
+              label="Title*"
+              prepend-icon="mdi-book"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="editedItem.case_description"
+              label="Detailed Description*"
+              prepend-icon="mdi-note"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              v-model="editedItem.case_sanction"
+              label="Sanction*"
+              prepend-icon="mdi-security"
+              required
+              placeholder="Select a sanction"
+              :items="sanctionOptions"
+            ></v-select>
+          </v-col>
+          <v-col cols="12">
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="white" variant="text" @click="saveEditedRecord" class="add-record-button">Save</v-btn>
+      <v-btn color="white" variant="text" @click="closeEditRecordDialog" class="add-record-button">Cancel</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
 
     <!-- Policy Dialog -->
     <v-dialog v-model="policyDialog" max-width="1000px">
@@ -265,45 +325,48 @@
       </v-card-text>
     </v-card>
 
-    <!-- Dialog for viewing all violations of the selected student -->
-    <v-dialog v-model="viewingRecords" max-width="600px">
-      <v-card>
-        <v-card-title>
-          Violation Details for Student ID: {{ selectedStudentId }}
-        </v-card-title>
-        <v-card-text v-if="selectedStudentViolations.length">
-          <v-list>
-            <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
-              <v-list-item :class="caseStatusClass(caseItem)">
-                <v-list-item-content>
-                  <v-list-item-title style="padding: 0.3rem;">
-                    <strong>Case Title:</strong> {{ caseItem.case_title }}
-                  </v-list-item-title>
-                  <!-- <v-list-item-subtitle style="padding: 0.3rem;">
-                    <strong>Description:</strong> {{ caseItem.case_description }}
-                  </v-list-item-subtitle> -->
-                  <v-list-item-subtitle style="padding: 0.3rem;">
-                    <strong>Sanction:</strong> {{ caseItem.case_sanction }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle style="padding: 0.3rem;">
-                    <strong>Date:</strong> {{ formatDate(caseItem.case_date) }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action style="padding: 0.3rem;">
-                  <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
-                  <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-              <hr>
-            </v-list-item-group>
-          </v-list>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    
+<!-- Dialog for viewing all violations of the selected student -->
+<v-dialog v-model="viewingRecords" max-width="600px">
+  <v-card>
+    <v-card-title>
+      Violation Details for Student ID: {{ selectedStudentId }}
+    </v-card-title>
+    <v-card-text v-if="selectedStudentViolations.length">
+      <v-list>
+        <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
+          <v-list-item :class="caseStatusClass(caseItem)">
+            <v-list-item-content>
+              <v-list-item-title style="padding: 0.3rem;">
+                <strong>Case Title:</strong> {{ caseItem.case_title }}
+              </v-list-item-title>
+              <!-- Optional Description -->
+              <!-- <v-list-item-subtitle style="padding: 0.3rem;">
+                <strong>Description:</strong> {{ caseItem.case_description }}
+              </v-list-item-subtitle> -->
+              <v-list-item-subtitle style="padding: 0.3rem;">
+                <strong>Sanction:</strong> {{ caseItem.case_sanction }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle style="padding: 0.3rem;">
+                <strong>Date and Time:</strong> {{ formatDateTime(caseItem.case_date) }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action style="padding: 0.3rem;">
+              <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
+              <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+          <hr>
+        </v-list-item-group>
+      </v-list>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
   </v-data-table>
 </template>
 
@@ -319,12 +382,14 @@ export default {
   data() {
     return {
       cases: [],
+      violations: [],
       uniqueStudentIds: [],
       selectedStudentId: null,
       selectedStudentViolations: [],
       viewingRecords: false,
       studentIdForReport: "",
       dialog: false,
+      editRecordDialog: false,
       policyDialog: false,
       editedItems: [],
       editedItem: {
@@ -392,6 +457,10 @@ export default {
     },
 
   methods: {
+    getStudentViolations(student_id) {
+    // Filter violations by student_id
+    return this.cases.filter(v => v.student_id === student_id);
+  },
 
       getStudentViolations(student_id) {
     // Filter violations by student_id
@@ -409,7 +478,46 @@ export default {
         ? 'not-cleared'
         : 'cleared';
     },
+    editRecord(item) {
+    this.editedItem = { ...item }; // Clone the selected item to avoid direct mutations
+    this.editRecordDialog = true; // Open the edit dialog
+  },
+  saveEditedRecord() {
+  if (!this.editedItem.cases_id) {
+    Swal.fire('Error', 'Invalid case ID.', 'error');
+    return;
+  }
+
+  axios.put(`http://26.11.249.89:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
+    .then(response => {
+      console.log('Update response:', response.data);
+
+      const index = this.violations.findIndex(violation => violation.cases_id === this.editedItem.cases_id);
+      if (index !== -1) {
+        this.violations[index] = response.data; 
+      }
+
+      console.log('Dialog closing');
+      this.closeEditRecordDialog();
+      this.closeViewingRecordsDialog();
+      Swal.fire('Success!', 'Violation updated successfully!', 'success');
+    })
+    .catch(error => {
+      console.error('Error updating record:', error.response ? error.response.data : error.message);
+      Swal.fire('Error', 'Failed to update violation. Please try again.', 'error');
+    });
+},
+
+
+  closeEditRecordDialog() {
+    this.editRecordDialog = false; // Close the edit dialog
+    this.editedItem = {}; // Reset the edited item
+  },
     
+
+  closeViewingRecordsDialog(){
+    this.viewingRecords = false;
+  },
     viewRecords(item) {
       console.log('Viewing records for ID:', item.student_id);
       this.editedItems = item.all_cases || []; // Set to the array of cases for the student
@@ -480,6 +588,22 @@ export default {
 
   return format(date, 'MM/dd/yyyy HH:mm:ss');
 },
+
+formatDateTime(dateTimeString) {
+  if (!dateTimeString) return '';
+  const date = new Date(dateTimeString);
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false // Use 24-hour time format
+  };
+  return date.toLocaleString('en-US', options); // Ensure correct formatting
+},
+
     handleInput(event) {
       // Extract the value from the event
       const value = event.target.value;
@@ -569,7 +693,7 @@ export default {
 },
 
     fetchViolations() {
-      axios.get('http://26.81.173.255:8000/api/cases')
+      axios.get('http://26.11.249.89:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
           this.cases = response.data.cases.map((cases) => ({
@@ -596,28 +720,59 @@ export default {
     return this.cases.filter(v => v.student_id === student_id);
   },
   saveNewRecord() {
-    const violationsForStudent = this.getStudentViolations(this.editedItem.student_id);
-    
-    if (violationsForStudent.length >= 3) {
-      this.viewingRecords= false;
-      this.dialog= false;
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'This student already has 3 violations.',
-        confirmButtonText: 'OK'
-      });
-      return;
-    }
-    
-    // Proceed to save the new record if violations count is less than 3
-    this.violations.push({
-      ...this.editedItem,
-      // Add additional fields if necessary
-    });
+  // Check if the student ID is provided
+  if (!this.editedItem.student_id) {
+    Swal.fire('Error', 'Student ID is required.', 'error');
+    return;
+  }
 
-    this.closeDialog();
-  },
+  // Fetch existing violations for the student
+  const violationsForStudent = this.getStudentViolations(this.editedItem.student_id);
+
+  // Check if the student already has 3 violations
+  if (violationsForStudent.length >= 3) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'This student already has 3 violations.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+
+  // Format the current date and time to 'YYYY-MM-DD HH:mm:ss'
+  const formatDateTime = (date) => {
+    const pad = (num) => num.toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  // Add the current date and time to the editedItem
+  this.editedItem.case_date = formatDateTime(new Date());
+
+  // Add the new record
+  axios.post('http://26.11.249.89:8000/api/cases', this.editedItem)
+    .then(response => {
+      // Successfully saved
+      this.cases.push(response.data); // Add the new violation to the list
+      Swal.fire('Success!', 'New violation record saved successfully!', 'success')
+        .then(() => {
+          // Close the dialog after showing the success message
+          this.closeDialog();
+        });
+    })
+    .catch(error => {
+      // Handle errors
+      console.error('Error saving new record:', error.response ? error.response.data : error.message);
+      Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
+    });
+},
+
 
   createRecord() {
     const dataToSend = {
@@ -653,7 +808,7 @@ archiveCase(caseId) {
     }).then((result) => {
       if (result.isConfirmed) {
         console.log('Received ID for archiving:', caseId);
-        axios.post('http://26.81.173.255:8000/api/cases/arch', { cases_id: caseId })
+        axios.post('http://26.11.249.89:8000/api/cases/arch', { cases_id: caseId })
           .then(response => {
             console.log('Record archived successfully:', response.data);
             // Remove the archived item from the violations list
@@ -696,12 +851,6 @@ archiveCase(caseId) {
 
     navigateToArchive() {
       this.$router.push('/violationarchive');
-    },
-
-    editRecord(item) {
-      this.editedItem = item;
-      console.log(this.editedItem);
-      this.dialog = true;
     },
 
     validateForm() {

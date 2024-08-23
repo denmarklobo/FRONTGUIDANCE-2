@@ -94,7 +94,7 @@ export default {
   },
   methods: {
      fetchArchivedConsultations() {
-      axios.get('http://26.81.173.255:8000/api/consultations/archived')
+      axios.get('http://26.11.249.89:8000/api/consultations/archived')
         .then(response => {
           // Update the component's data with the fetched consultations
           this.archivedConsultations = response.data.consultations;
@@ -129,7 +129,7 @@ export default {
     console.log('Received ID for restoring:', con_id);
     Swal.fire({
         title: 'Are you sure?',
-        text: 'Do you want to save this record?',
+        text: 'Do you want to restore this record?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -142,7 +142,7 @@ export default {
     // Confirm with the user before proceeding
 
         // Send a POST request to the server
-        axios.put('http://26.81.173.255:8000/api/consultation/restore', { con_id })
+        axios.put('http://26.11.249.89:8000/api/consultation/restore', { con_id })
             .then(response => {
                 console.log('Record restored successfully:', response.data);
                 this.fetchArchivedConsultations(); // Refresh the list of archived consultations
