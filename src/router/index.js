@@ -77,7 +77,14 @@ const router = createRouter ({
             meta: {
                 requiresAuthentication: true,
             }
-        },        
+        },       
+        {
+            path: '/violationcleared',
+            component: () => import('../views/ViolationCleared.vue'),
+            meta: {
+                requiresAuthentication: true,
+            }
+        },   
               
     ],
 });

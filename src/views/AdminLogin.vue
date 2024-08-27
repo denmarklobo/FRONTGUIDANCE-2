@@ -91,7 +91,7 @@ export default {
     this.showPassword = !this.showPassword;
   },  
   handleLogin() {
-    axios.post('http://26.81.173.255:8000/api/authlogin', {
+    axios.post('http://127.0.0.1:8000/api/authlogin', {
       email: this.email,
       password: this.password,
     })

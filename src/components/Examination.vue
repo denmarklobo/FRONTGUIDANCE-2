@@ -200,7 +200,7 @@ export default {
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-      axios.get('http://26.81.173.255:8000/api/examinations')
+      axios.get('http://127.0.0.1:8000/api/examinations')
         .then(response => {
           this.examinations = response.data.examinations;
         })
@@ -249,7 +249,7 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.post('http://26.81.173.255:8000/api/examinations', this.editedItem)
+          axios.post('http://127.0.0.1:8000/api/examinations', this.editedItem)
             .then(response => {
               this.examinations.push(response.data);
               this.fetchExam();
@@ -289,7 +289,7 @@ export default {
     cancelButtonColor: "#F44336",
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.put(`http://26.81.173.255:8000/api/examinations/${this.editedItem.exam_id}`, {
+      axios.put(`http://127.0.0.1:8000/api/examinations/${this.editedItem.exam_id}`, {
         student_id: this.editedItem.student_id,
         exam_title: this.editedItem.exam_title,
         exam_remarks: this.editedItem.exam_remarks,
@@ -333,7 +333,7 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           console.log(id);
-          axios.post(`http://26.81.173.255:8000/api/examinations/${id}/archive`)
+          axios.post(`http://127.0.0.1:8000/api/examinations/${id}/archive`)
             .then(response => {
               this.fetchExam();
               Swal.fire({

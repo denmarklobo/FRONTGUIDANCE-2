@@ -92,7 +92,7 @@ export default {
   methods: {
     async fetchSummary() {
       try {
-        const response = await axios.get('http://26.81.173.255:8000/api/vio/summary');
+        const response = await axios.get('http://127.0.0.1:8000/api/vio/summary');
         const data = response.data;
 
         this.totalCases = data.totalCases;
@@ -105,7 +105,7 @@ export default {
     async fetchData() {
       try {
         // Fetch data for Junior High
-        const responseJHS = await axios.get('http://26.81.173.255:8000/api/vio/getJHS');
+        const responseJHS = await axios.get('http://127.0.0.1:8000/api/vio/getJHS');
         const fetchedJHSData = responseJHS.data.data;
 
         // Calculate totals for Junior High
@@ -133,7 +133,7 @@ export default {
         this.totalNotCleared += totalNotClearedJHS;
 
         // Fetch data for Senior High
-        const responseSHS = await axios.get('http://26.81.173.255:8000/api/vio/getSHS');
+        const responseSHS = await axios.get('http://127.0.0.1:8000/api/vio/getSHS');
         const fetchedSHSData = responseSHS.data.data;
 
         // Process data for Senior High

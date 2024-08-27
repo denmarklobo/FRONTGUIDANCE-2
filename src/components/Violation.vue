@@ -23,11 +23,16 @@
         <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark>
           <v-icon left>mdi-plus</v-icon>
           Add Violation
+        </v-btn> 
+        <v-btn @click="navigateToCleared" class="mb-2 rounded-l add-record-button mr-2" to="/violationarchive" dark>
+          <v-icon left>mdi-check</v-icon>
+          Cleared
         </v-btn>
         <v-btn @click="navigateToArchive" class="mb-2 rounded-l add-record-button mr-2" to="/violationarchive" dark>
           <v-icon left>mdi-archive</v-icon>
-          Archive
+          Archived
         </v-btn>
+
         <v-btn @click="openPolicy" class="mb-2 rounded-l add-record-button mr-2">
           <v-icon left>mdi-lightbulb</v-icon>
           Policy
@@ -298,38 +303,42 @@
     </v-dialog>
 
     <v-card>
-      <v-card-title class="text-h6 font-weight-bold">
-        <span>Student List</span>
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <v-row class="font-weight-bold">
-          <v-col cols="4">Student ID</v-col>
-          <v-col cols="4">Student Name</v-col>
-          <v-col cols="4">Student Guidance Status</v-col>
-        </v-row>
-        <v-divider></v-divider>
-        <!-- List of unique student IDs for Violations -->
-        <v-list>
-          <v-list-item-group v-for="student in uniqueStudentIds" :key="student.student_id">
-            <v-list-item
-              @click="viewStudentViolations(student.student_id)"
-              class="list-item"
-            >
-              <v-list-item-content>
-                <v-row>
-                  <v-col cols="4">{{ student.student_id }}</v-col>
-                  <v-col cols="4">{{ student.full_name }}</v-col>
-                  <v-col cols="4" :class="caseStatusClass(student.student_id)">
-                    {{ caseStatus(student.student_id) }}
-                  </v-col>
-                </v-row>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-card-text>
-    </v-card>
+  <v-card-title class="text-h6 font-weight-bold">
+    <span>Student List</span>
+  </v-card-title>
+  <v-divider></v-divider>
+  <v-card-text>
+    <v-row class="font-weight-bold">
+      <v-col cols="2">Student ID</v-col>
+      <v-col cols="3">Student Name</v-col>
+      <v-col cols="2">Grade Level</v-col>
+      <v-col cols="2">Guardian Mobile No.</v-col>
+      <v-col cols="2">Student Guidance Status</v-col>
+    </v-row>
+    <v-divider></v-divider>
+    <!-- List of unique student IDs for Violations -->
+    <v-list>
+      <v-list-item-group v-for="student in uniqueStudentIds" :key="student.student_id">
+        <v-list-item
+          @click="viewStudentViolations(student.student_id)"
+          class="list-item"
+        >
+          <v-list-item-content>
+            <v-row>
+              <v-col cols="2">{{ student.student_id }}</v-col>
+              <v-col cols="3">{{ student.full_name }}</v-col>
+              <v-col cols="2">{{ student.grade_level }}</v-col>
+              <v-col cols="2">{{ student.guardian_mobileno }}</v-col>
+              <v-col cols="2" :class="caseStatusClass(student.student_id)">
+                {{ caseStatus(student.student_id) }}
+              </v-col>
+            </v-row>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+    </v-list>
+  </v-card-text>
+</v-card>
 
     
 <!-- Dialog for viewing all violations of the selected student -->
@@ -434,25 +443,28 @@ export default {
     },
     uniqueStudentIds() {
     const uniqueStudents = {};
-  
+
     this.cases.forEach(cases => {
       const studentId = cases.student_profile.student_id;
       const fullName = `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim();
-  
+      const guardianMobileno = cases.student_profile.guardian_mobileno; // Add this line
+
       if (!uniqueStudents[studentId]) {
         // Determine case status: "Not-Cleared" if any case is not cleared (case_status === 0)
         const caseStatus = this.cases.some(c => c.student_profile.student_id === studentId && c.case_status === 0) 
                           ? 'Not-Cleared' 
                           : 'Cleared';
-  
+
         uniqueStudents[studentId] = { 
           student_id: studentId, 
           full_name: fullName, 
+          grade_level: cases.student_profile.grade_level,
+          guardian_mobileno: guardianMobileno, // Add this line
           case_status: caseStatus 
         };
       }
     });
-  
+
     return Object.values(uniqueStudents);
   },
   
@@ -494,7 +506,7 @@ export default {
     return;
   }
 
-  axios.put(`http://26.81.173.255:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
+  axios.put(`http://127.0.0.1:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
     .then(response => {
       console.log('Update response:', response.data);
 
@@ -699,7 +711,7 @@ formatDateTime(dateTimeString) {
 },
 
     fetchViolations() {
-      axios.get('http://26.81.173.255:8000/api/cases')
+      axios.get('http://127.0.0.1:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
           this.cases = response.data.cases.map((cases) => ({
@@ -752,8 +764,8 @@ formatDateTime(dateTimeString) {
     if (result.isConfirmed) {
       // Determine if we are updating or creating a new record
       const apiUrl = this.editedItem.student_id
-        ? `http://26.81.173.255:8000/api/cases/${this.editedItem.con_id}`
-        : 'http://26.81.173.255:8000/api/cases';
+        ? `http://127.0.0.1:8000/api/cases/${this.editedItem.con_id}`
+        : 'http://127.0.0.1:8000/api/cases';
 
       const apiMethod = this.editedItem.student_id ? 'put' : 'post';
 
@@ -804,7 +816,7 @@ formatDateTime(dateTimeString) {
 // this.editedItem.case_date = formatDateTime(new Date());
 
 // // Add the new record
-// axios.post(`http://26.81.173.255:8000/api/cases`, this.editedItem)
+// axios.post(`http://127.0.0.1:8000/api/cases`, this.editedItem)
 //   .then(response => {                                         
 //     // Successfully saved
 //     this.cases.push(response.data); // Add the new violation to the list
@@ -856,7 +868,7 @@ archiveCase(caseId) {
       if (result.isConfirmed) {
         console.log(caseId);
         axios
-          .post(`http://26.81.173.255:8000/api/cases/${caseId}/arch`)
+          .post(`http://127.0.0.1:8000/api/cases/${caseId}/arch`)
           .then(response => {
             this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
             Swal.fire({
@@ -917,6 +929,10 @@ archiveCase(caseId) {
 
     navigateToArchive() {
       this.$router.push('/violationarchive');
+    },
+
+    navigateToCleared() {
+      this.$router.push('/violationcleared');
     },
 
     validateForm() {

@@ -20,15 +20,15 @@
       <v-data-table
       :search="search"
       :headers="headers"
-      :items="displayedViolations"
+      :items="deletedCases"
       :sort-by="[{ key: 'case_date', order: 'desc' }]"
     >
 
       <template v-slot:item="{ item }">
         <tr>
-          <td>{{ item.student_id }}</td>
           <td>{{ item.case_title }}</td>
           <td>{{ item.case_description }}</td>
+          <td>{{ item.case_sanction }}</td>
           <td class="{{ item.case_status === 0 ? 'status-not-cleared' : 'status-cleared' }}">
   {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
 </td>
@@ -49,12 +49,13 @@ import Swal from 'sweetalert2';
 export default {
   data() {
     return {
-      archivedViolations: [], // Initialize as empty array
+      deletedCases: [], // Initialize as empty array
       search: '',
       headers: [
         { title: 'Student ID', value: 'student_id' },
         { title: 'Title', value: 'case_title' },
         { title: 'Description', value: 'case_description' },
+        { title: 'Sanction', value: 'case_sanction' },
         { title: 'Status', value: 'case_status' },
         { title: 'Date', value: 'case_date' },
         { title: 'Actions', value: 'actions', sortable: false }
@@ -67,7 +68,7 @@ export default {
   computed: {
     displayedViolations() {
       const searchTerm = this.search.toLowerCase();
-      return this.archivedViolations.filter((violation) =>
+      return this.deletedCases.filter((violation) =>
         Object.values(violation).some(
           (value) => {
             if (typeof value === 'string') {
@@ -83,9 +84,9 @@ export default {
   },
   methods: {
     fetchArchivedViolations() {
-      axios.get('http://26.81.173.255:8000/api/archived')
+      axios.get('http://127.0.0.1:8000/api/deletedCases')
         .then(response => {
-          this.archivedViolations = response.data.archivedViolations || [];
+          this.deletedCases = response.data.archivedViolations || [];
         })
         .catch(error => {
           console.error('Error fetching archived violations', error);
@@ -109,7 +110,7 @@ export default {
       // console.log('Received ID for restoring:', cases_id);
       // const isConfirmed = confirm('Are you sure you want to restore this record?');
       // if (isConfirmed) {
-        axios.post('http://26.81.173.255:8000/api/cases/restore', { cases_id })
+        axios.post('http://127.0.0.1:8000/api/cases/restore', { cases_id })
           .then(response => {
             console.log('Record restored successfully:', response.data);
             this.fetchArchivedViolations(); // Refresh the list of archived violations

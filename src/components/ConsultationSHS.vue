@@ -49,7 +49,7 @@
   
   const fetchData = async () => {
     try {
-      const responseSHS = await axios.get('http://26.81.173.255:8000/api/cons/shs');
+      const responseSHS = await axios.get('http://127.0.0.1:8000/api/cons/shs');
       const fetchedData = responseSHS.data.data;
       console.log("Fetched Senior High data:", fetchedData);
   
