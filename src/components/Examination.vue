@@ -28,6 +28,7 @@
     <template v-slot:item="{ item }">
       <tr>
         <td>{{ item.student_id }}</td>
+        <td>{{ item.full_name }}</td>
         <td>{{ item.exam_title }}</td>
         <td>{{ item.exam_remarks }}</td>
         <td>{{ formatDate(item.exam_date) }}</td>
@@ -131,6 +132,7 @@
       <v-card-title>Exam Details</v-card-title>
       <v-card-text v-if="editedItem">
         <p><strong>Student ID:</strong> {{ editedItem.student_id || 'N/A' }}</p>
+        <p><strong>Student Name:</strong> {{ editedItem.full_name }}</p>
         <p><strong>Exam Title:</strong> {{ editedItem.exam_title }}</p>
         <p><strong>Exam Remarks:</strong> {{ editedItem.exam_remarks }}</p>
         <p><strong>Exam Date:</strong> {{ formatDate(editedItem.exam_date) }}</p>
@@ -164,6 +166,7 @@ export default {
       search: '',
       headers: [
         { title: 'Student ID', key: 'student_id' },
+        { title: 'Name', key: 'full_name' },
         { title: 'Exam Title', key: 'exam_title' },
         { title: 'Assessment', key: 'exam_remarks' },
         { title: 'Date', key: 'exam_date' },
@@ -197,7 +200,7 @@ export default {
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-      axios.get('http://26.11.249.89:8000/api/examinations')
+      axios.get('http://26.81.173.255:8000/api/examinations')
         .then(response => {
           this.examinations = response.data.examinations;
         })
@@ -246,7 +249,7 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.post('http://26.11.249.89:8000/api/examinations', this.editedItem)
+          axios.post('http://26.81.173.255:8000/api/examinations', this.editedItem)
             .then(response => {
               this.examinations.push(response.data);
               this.fetchExam();
@@ -273,6 +276,8 @@ export default {
       });
     },
     updateRecord() {
+      this.editDialog = false;
+      this.viewingRecords = false;
   Swal.fire({
     title: 'Are you sure?',
     text: 'Do you want to update this record?',
@@ -284,7 +289,7 @@ export default {
     cancelButtonColor: "#F44336",
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.put(`http://26.11.249.89:8000/api/examinations/${this.editedItem.exam_id}`, {
+      axios.put(`http://26.81.173.255:8000/api/examinations/${this.editedItem.exam_id}`, {
         student_id: this.editedItem.student_id,
         exam_title: this.editedItem.exam_title,
         exam_remarks: this.editedItem.exam_remarks,
@@ -295,7 +300,7 @@ export default {
           this.closeEditDialog();
           Swal.fire({
             title: 'Updated',
-            text: 'Record Updated Successfully!',
+            text: 'Record updated successfully!',
             icon: 'success',
             showConfirmButton: false,
             timer: 3000,
@@ -328,12 +333,12 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           console.log(id);
-          axios.post(`http://26.11.249.89:8000/api/examinations/${id}/archive`)
+          axios.post(`http://26.81.173.255:8000/api/examinations/${id}/archive`)
             .then(response => {
               this.fetchExam();
               Swal.fire({
                 title: 'Archived',
-                text: 'Record Archived Successfully!',
+                text: 'Record archived successfully!',
                 icon: 'success',
                 showConfirmButton: false,
                 timer: 3000,
@@ -369,8 +374,6 @@ export default {
   },
 };
 </script>
-
-
 
 <style>
 .v-card:hover {

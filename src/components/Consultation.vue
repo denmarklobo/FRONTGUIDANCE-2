@@ -5,6 +5,9 @@
     :items="displayedConsultations"
     :sort-by="[{ key: 'student_id', order: 'asc' }]"
   >
+
+<!-- Search Bar-->
+
     <template v-slot:top>
       <v-toolbar flat>
         <v-text-field
@@ -20,18 +23,23 @@
           style="max-width: 500px;"
         ></v-text-field>
 
+<!-- Add Record and Archive Button-->
+
         <v-dialog v-model="dialog" max-width="1000px">
           <template v-slot:activator="{ props }">
             <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark v-bind="props" prepend-icon="mdi-plus">Add Record</v-btn>
             <v-btn @click="openArchives" class="mb-2 rounded-l add-record-button mr-2" to="/consultationarchive" prepend-icon="mdi-archive">Archive</v-btn>
             <v-menu offset-y>
-      <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
-          <v-icon left>mdi-file-chart</v-icon>
-          Generate Report
-          <v-icon right>mdi-menu-down"></v-icon>
-        </v-btn>
-      </template>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
+             <v-icon left>mdi-file-chart</v-icon>
+              Generate Report
+             <v-icon right>mdi-menu-down"></v-icon>
+            </v-btn>
+          </template>
+
+<!-- generate Report-->
+
       <v-list>
             <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
           <v-list-item-icon>
@@ -55,9 +63,9 @@
         </v-list-item>
       </v-list>
     </v-menu>
-          </template>
+</template>     
 
-          
+<!-- New Record -->
 
           <v-card>
             <v-card-title>New Consultation Record</v-card-title>
@@ -108,6 +116,8 @@
           </v-card>
         </v-dialog>
 
+<!-- VIEW RECORDS -->
+
         <v-dialog v-model="viewingRecords" max-width="600px">
           <v-card>
             <v-card-title>Consultation Details</v-card-title>
@@ -127,6 +137,8 @@
       </v-toolbar>
     </template>
 
+<!-- TABLE -->
+
     <template v-slot:item="{ item }">
       <tr>
         <td>{{ item.student_id || 'N/A' }}</td>
@@ -141,6 +153,8 @@
     </template>
   </v-data-table>
 
+<!-- ARCHIVE RECORD-->
+
   <v-dialog v-model="archiveDialog" max-width="400px">
   <v-card>
     <v-card-title class="headline">Confirm Archive</v-card-title>
@@ -151,8 +165,7 @@
       <v-btn @click="archiveDialog = false" class="mb-2 rounded-l add-record-button" >No</v-btn>
     </v-card-actions>
   </v-card>
-</v-dialog>
-
+  </v-dialog>
 </template>
 
 <script>
@@ -176,6 +189,7 @@ export default {
       search: '',
       headers: [
         { title: 'Student ID', value: 'student_id' },
+        { title: 'Student Name', value: 'full_name' },
         { title: 'Entry Title', value: 'con_title' },
         // { title: 'Important Notes', value: 'con_notes' },
         { title: 'Entry Date', value: 'con_date' },
@@ -269,9 +283,9 @@ export default {
       } catch (error) {
         console.error('Error exporting report:', error);
       }
-    },
+  },
     fetchConsultations() {
-  axios.get('http://26.11.249.89:8000/api/consultation')
+    axios.get('http://26.81.173.255:8000/api/consultation')
     .then(response => {
       this.displayedConsultations = response.data.consultations;
     })
@@ -279,14 +293,14 @@ export default {
       console.error('Error fetching consultations:', error);
       Swal.fire({
         title: 'Error',
-        text: 'Failed to fetch consultation record',
+        text: 'Failed to fetch Consultations',
         icon: 'error',
         showConfirmButton: false, 
         timer: 3000, 
 
       });
     });
-},
+  },
     openDialog() {
       this.dialog = true;
       this.editedItem = {
@@ -318,8 +332,8 @@ export default {
       this.viewingRecords = false;
       this.dialog= false; 
       Swal.fire({
-        title: 'Are you sure?',
-        text: 'Do you want to save this record?',
+        title: 'Are You Sure?',
+        text: 'Do you want to save this Record?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -330,92 +344,88 @@ export default {
         if (result.isConfirmed) {
           if (this.editedItem.con_id) {
             // Update existing record
-            axios.put('http://26.11.249.89:8000/api/consultation/${this.editedItem.con_id}, this.editedItem')
+            axios.put(`http://26.81.173.255:8000/api/consultation/${this.editedItem.con_id}, this.editedItem`)
               .then(response => {
                 this.fetchConsultations();
                 this.closeDialog();
                 Swal.fire({
-        title: 'Updated',
-        text: 'Record Updated Successfully!',
-        icon: 'success',
-        showConfirmButton: false, 
-        timer: 3000, 
-
-      });
-              })
+                title: 'Updated',
+                text: 'Record updated successfully!',
+                icon: 'success',
+                showConfirmButton: false, 
+                timer: 3000, 
+              });
+             })
               .catch(error => {
                 console.error('Error updating record', error);
                 Swal.fire({
-        title: 'Error',
-        text: 'Error updating record',
-        icon: 'error',
-        showConfirmButton: false, 
-        timer: 3000, 
-      });
-                
-                
+                title: 'Error',
+                text: 'Error updating record',
+                icon: 'error',
+                showConfirmButton: false, 
+                timer: 3000, 
+              });
               });
           } else {
             // Add new record
-            axios.post('http://26.11.249.89:8000/api/consultation', this.editedItem)
+            axios.post('http://26.81.173.255:8000/api/consultation', this.editedItem)
               .then(response => {
                 console.log('Record saved successfully:', response.data);
                 this.displayedConsultations.push(response.data.consultation);
                 this.closeDialog();
                 Swal.fire({
-        title: 'Saved',
-        text: 'Record Saved Successfully!',
-        icon: 'success',
-        showConfirmButton: false, 
-        timer: 3000, 
-        });
-      })
+                 title: 'Saved',
+                 text: 'Record saved successfully!',
+                 icon: 'success',
+                 showConfirmButton: false, 
+                 timer: 3000, 
+                });
+               })
               .catch(error => {
                 console.error('Error saving new record', error);
                 Swal.fire({
-        title: 'Error',
-        text: 'Error saving new record',
-        icon: 'error',
-        showConfirmButton: false, 
-        timer: 3000, 
-      });
+                title: 'Error',
+                text: 'Error saving new record',
+                icon: 'error',
+                showConfirmButton: false, 
+                timer: 3000, 
+               });
               });
-          }
-        }
-      });
+             }
+            }
+           });
     
       if (this.validateForm()) {
-        axios.post('http://26.11.249.89:8000/api/consultations', this.editedItem)
+        axios.post('http://26.81.173.255:8000/api/consultations', this.editedItem)
           .then(response => {
             console.log('Record saved successfully:', response.data);
             this.displayedConsultations.push(response.data.consultation);
             this.closeDialog();
             Swal.fire({
-        title: 'Updated',
-        text: 'Record Saved Successfully!',
-        icon: 'success',
-        showConfirmButton: false, 
-        timer: 3000, 
-        });
-          })
+             title: 'Updated',
+             text: 'Record saved successfully!',
+             icon: 'success',
+             showConfirmButton: false, 
+             timer: 3000, 
+            });
+           })
           .catch(error => {
             console.error('Error saving new record:', error.response ? error.response.data : error.message);
             Swal.fire({
-        title: 'Error',
-        text: 'Error saving new record',
-        icon: 'error',
-        showConfirmButton: false, 
-        timer: 3000, 
-
-      });
-          });
-        }
-    },
+             title: 'Error',
+             text: 'Error saving new record',
+             icon: 'error',
+             showConfirmButton: false, 
+             timer: 3000, 
+            });
+           });
+          }
+        },
       
-    archiveItem(id) {
-  Swal.fire({
+archiveItem(id) {
+    Swal.fire({
     title: 'Are you sure?',
-    text: 'Do you want to archive this entry?',
+    text: 'Do you want to archive this record?',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -426,12 +436,12 @@ export default {
     if (result.isConfirmed) {
       console.log(id);
       axios
-        .post(`http://26.11.249.89:8000/api/consultation/${id}/archive`)
+        .post(`http://26.81.173.255:8000/api/consultation/${id}/archive`)
         .then((response) => {
           this.fetchConsultations();
           Swal.fire({
             title: 'Archived',
-            text: 'Consultation Archived Successfully!',
+            text: 'Record archived successfully!',
             icon: 'success',
             showConfirmButton: false,
             timer: 3000,
@@ -441,7 +451,7 @@ export default {
           console.error(error);
           Swal.fire({
             title: 'Error',
-            text: 'Error archiving consultation',
+            text: 'Error archiving record',
             icon: 'error',
             showConfirmButton: false,
             timer: 3000,
@@ -451,7 +461,7 @@ export default {
       // Handle the case where the user cancels the action
       Swal.fire({
         title: 'Cancelled',
-        text: 'Your consultation entry was not archived',
+        text: 'Your record was not archived',
         icon: 'info',
         showConfirmButton: false,
         timer: 3000,
@@ -463,13 +473,13 @@ export default {
 archiveConfirmed() {
   if (this.selectedConsultationId !== null) {
     axios
-      .post(`http://26.11.249.89:8000/api/consultation/${this.selectedConsultationId}/archive`)
+      .post(`http://26.81.173.255:8000/api/consultation/${this.selectedConsultationId}/archive`)
       .then((response) => {
         this.fetchConsultations();
         this.archiveDialog = false;
         Swal.fire({
           title: 'Archived',
-          text: 'Consultation Archived Successfully!',
+          text: 'Record archived successfully!',
           icon: 'success',
           showConfirmButton: false,
           timer: 3000,
@@ -489,17 +499,17 @@ archiveConfirmed() {
     // Handle the case where no consultation is selected
     Swal.fire({
       title: 'Error',
-      text: 'No consultation selected to archive',
+      text: 'No record selected to archive',
       icon: 'error',
       showConfirmButton: false,
       timer: 3000,
     });
   }
 },
-
+  },
     // archiveConfirmed() {
     //   if (this.selectedConsultationId !== null) {
-    //     axios.post('http://26.11.249.89:8000/api/consultation/${this.selectedConsultationId}/archive')
+    //     axios.post('http://26.81.173.255:8000/api/consultation/${this.selectedConsultationId}/archive')
     //       .then(response => {
     //         console.log('Consultation archived successfully:', response.data);
     //         this.updateConsultations();
@@ -510,22 +520,22 @@ archiveConfirmed() {
     //       });
     //   }
     // },
-    updateConsultations() {
-      // Method to refresh the list of consultation or update the local state
-      axios.get('http://26.11.249.89:8000/api/consultation')
-        .then(response => {
-          this.consultations = response.data.consultations;
-        })
-        .catch(error => {
-          console.error('Error fetching consultations:', error.response ? error.response.data : error.message);
-        });
-    },
-    formatDate(dateString) {
-    const date = new Date(dateString);
-    // Format as YYYY-MM-DD HH:MM:SS
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  },
-  },
+//     updateConsultations() {
+//       // Method to refresh the list of consultation or update the local state
+//       axios.get('http://26.81.173.255:8000/api/consultation')
+//         .then(response => {
+//           this.consultations = response.data.consultations;
+//         })
+//         .catch(error => {
+//           console.error('Error fetching consultations:', error.response ? error.response.data : error.message);
+//         });
+//     },
+//     formatDate(dateString) {
+//     const date = new Date(dateString);
+//     // Format as YYYY-MM-DD HH:MM:SS
+//     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+//   },
+//   },
   mounted() {
     this.fetchConsultations();
   }

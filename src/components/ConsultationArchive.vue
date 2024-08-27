@@ -26,8 +26,9 @@
      <template v-slot:item="{ item }">
           <tr>
             <td>{{ item.student_id || 'N/A' }}</td>
+            <td>{{ item.full_name }}</td>
             <td>{{ item.con_title }}</td>
-            <td>{{ item.con_notes }}</td>
+          <!--  <td>{{ item.con_notes }}</td> -->
             <td>{{ formatDate(item.con_date) }}</td>
             <td>
           <v-icon style="color: #2F3F64" @click="viewRecords(item)"><span class= "mdi mdi-eye-circle fs-5 mr-2"></span></v-icon>
@@ -65,8 +66,9 @@ export default {
       search: '',
       headers: [
         { title: 'Student ID', value: 'student_id' },
+        { title: 'Student Name', value: 'full_name' },
         { title: 'Entry Title', value: 'con_title' },
-        { title: 'Important Notes', value: 'con_notes' },
+    //    { title: 'Important Notes', value: 'con_notes' },
         { title: 'Entry Date', value: 'con_date' },
         { title: 'Actions', sortable: false },
         ],
@@ -94,7 +96,7 @@ export default {
   },
   methods: {
      fetchArchivedConsultations() {
-      axios.get('http://26.11.249.89:8000/api/consultations/archived')
+      axios.get('http://26.81.173.255:8000/api/consultations/archived')
         .then(response => {
           // Update the component's data with the fetched consultations
           this.archivedConsultations = response.data.consultations;
@@ -142,37 +144,35 @@ export default {
     // Confirm with the user before proceeding
 
         // Send a POST request to the server
-        axios.put('http://26.11.249.89:8000/api/consultation/restore', { con_id })
+        axios.put('http://26.81.173.255:8000/api/consultation/restore', { con_id })
             .then(response => {
                 console.log('Record restored successfully:', response.data);
                 this.fetchArchivedConsultations(); // Refresh the list of archived consultations
                 Swal.fire({
-        title: 'Unarchived',
-        text: 'Consultation Restored Successfully!',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 3000,
-
-      });
-            })
+                 title: 'Unarchived',
+                 text: 'Consultation Restored Successfully!',
+                 icon: 'success',
+                 showConfirmButton: false,
+                 timer: 3000,
+                });
+               })
             .catch(error => {
                 // Log and handle the error
                 console.error('Error restoring record:', error.response ? error.response.data : error.message);
                 Swal.fire({
-    title: 'Error',
-    text: 'Error Restoring Record',
-    icon: 'error',
-    showConfirmButton: false, 
-    timer: 3000,          
-});
+                 title: 'Error',
+                 text: 'Error Restoring Record',
+                 icon: 'error',
+                 showConfirmButton: false, 
+                 timer: 3000,          
+                });
               });
-      
-        }
-      });
-    }
-  }}
+             }
+           });
+          }
+        }}
+        
 </script>
-
 
 <style lang="scss" scoped>
   .main-content {

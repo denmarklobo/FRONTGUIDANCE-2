@@ -25,7 +25,7 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>{{ item.student_id }}</td>
-          <!-- <td>{{ item.student_name }}</td> -->
+          <td>{{ item.student_name }}</td>
           <td>{{ item.exam_title }}</td>
           <td>{{ item.exam_score }}</td>
           <td>{{ item.exam_remarks }}</td>
@@ -45,7 +45,6 @@
               <p><strong>Student ID:</strong> {{ editedItem.student_id || 'N/A' }}</p>
               <!-- <p><strong>Student Name:</strong> {{ editedItem.student_name }}</p> -->
               <p><strong>Exam Title:</strong> {{ editedItem.exam_title }}</p>
-              <p><strong>Exam Score:</strong> {{ editedItem.exam_score }}</p> <!-- Corrected -->
               <p><strong>Exam Remarks:</strong> {{ editedItem.exam_remarks }}</p> <!-- Corrected -->
               <p><strong>Exam Date:</strong> {{ formatDate(editedItem.exam_date) }}</p>
             </v-card-text>
@@ -72,18 +71,16 @@ export default {
       dialog: false,
       editedItem: {
         student_id: '',
-        // student_name: '',
+        student_name: '',
         exam_title: '',
-        exam_score: '',
         exam_remarks: '',
         exam_date: this.getCurrentDate(),
       },
       search: '',
       headers: [
         { title: 'Student ID', key: 'student_id' },
-        // { title: 'Name', key: 'student_name' },
+        { title: 'Student Name', key: 'student_name' },
         { title: 'Exam Title', key: 'exam_title' },
-        { title: 'Score', key: 'exam_score' },
         { title: 'Assessment', key: 'exam_remarks' },
         { title: 'Date', key: 'exam_date' },
         { title: 'Actions', sortable: false },
@@ -109,7 +106,7 @@ export default {
   },
   methods: {
     fetchexam() {
-      axios.get('http://26.11.249.89:8000/api/examinations/arch')
+      axios.get('http://26.81.173.255:8000/api/examinations/arch')
         .then(response => {
           console.log(response.data);
             this.examinations = response.data.examinations;
@@ -126,7 +123,6 @@ export default {
       this.editedItem = {
         student_id: '',
         exam_title: '',
-        exam_score: '',
         exam_remarks: '',
         exam_date: this.getCurrentDate(),
       };
@@ -144,7 +140,7 @@ export default {
     // const examId = exam.exam_id; // Use exam.exam_id here
     Swal.fire({
         title: 'Are you sure?',
-        text: 'Do you want to unarchive this record?',
+        text: 'Do you want to restore this record?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -153,12 +149,12 @@ export default {
         cancelButtonColor: "#F44336",
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.post(`http://26.11.249.89:8000/api/examinations/restore`, { examId }) // Use examId here
+            axios.post(`http://26.81.173.255:8000/api/examinations/restore`, { examId }) // Use examId here
                 .then(() => {
                     this.examinations = this.examinations.filter(e => e.exam_id !== examId); // Use examId here
                     Swal.fire({
                         title: 'Unarchived',
-                        text: 'The record has been unarchived successfully',
+                        text: 'The record has been restored successfully',
                         icon: 'success',
                         showConfirmButton: false,
                         timer: 3000,
@@ -168,7 +164,7 @@ export default {
                     console.error('Error un-archiving record:', error);
                     Swal.fire({
                       title: 'Error',
-                        text: 'There was an Issue restoring the record',
+                        text: 'Error restoring the record',
                         icon: 'error',
                         showConfirmButton: false,
                         timer: 3000,
@@ -194,6 +190,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <style>

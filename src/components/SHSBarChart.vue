@@ -59,7 +59,7 @@ const chartOptions = ref({
 
 const fetchData = async () => {
   try {
-    const responseSHS = await axios.get('http://26.11.249.89:8000/api/vio/getSHS');
+    const responseSHS = await axios.get('http://26.81.173.255:8000/api/vio/getSHS');
     const fetchedData = responseSHS.data.data;
     console.log("Fetched Senior High data:", fetchedData);
 

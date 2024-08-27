@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import Swal from 'sweetalert2';
 
 const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
@@ -8,6 +9,25 @@ const ToggleMenu = () => {
 
     localStorage.setItem("is_expanded", is_expanded.value)
 }
+const logout = (event) => {
+    event.preventDefault(); // Prevent the default action of the link
+
+    Swal.fire({
+        title: 'Are you sure you want to logout?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+        confirmButtonColor: "#4CAF50",
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
+        cancelButtonColor: "#F44336",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('role'); // Clear the role from local storage
+            sessionStorage.removeItem('token');
+            window.location.href = '/'; // Redirect to the login page
+        }
+    });
+};
 
 </script>
 <template>
@@ -37,14 +57,6 @@ const ToggleMenu = () => {
       </router-link>
     </div>
 
-    <!-- Students Menu -->
-    <!-- <div class="menu">
-      <router-link class="button" to="/students">
-        <span class="material-icons">face</span>
-        <span class="text">Students</span>
-      </router-link>
-    </div> -->
-
     <!-- Conditional Menus -->
     <div v-if="isAdmin" class="menu">
       <router-link class="button" to="/consultation">
@@ -70,10 +82,10 @@ const ToggleMenu = () => {
 
     <!-- Logout Menu -->
     <div class="menu-logout">
-      <router-link class="button" to="/" @click.native="logout">
+      <button class="button" @click="logout">
         <span class="material-icons">logout</span>
         <span class="text">Logout</span>
-      </router-link>
+      </button>
     </div>
   </aside>
 </template>
@@ -100,16 +112,14 @@ export default {
     ToggleMenu() {
       this.is_expanded = !this.is_expanded;
     },
-    logout() {
-      localStorage.removeItem('role'); // Clear the role from local storage
-      this.$router.push('/'); // Redirect to the login page
-      sessionStorage.removeItem('token');
-    }
+    // logout() {
+    //   localStorage.removeItem('role'); // Clear the role from local storage
+    //   this.$router.push('/'); // Redirect to the login page
+    //   sessionStorage.removeItem('token');
+    // }
   }
 }};
 </script>
-
-
 
 <style lang="scss" scoped>
   aside {
@@ -163,7 +173,6 @@ export default {
           opacity: 0;
           transition: 0.3s ease-out;
       }
-  
   
       .menu {
           margin: -0 -1rem;

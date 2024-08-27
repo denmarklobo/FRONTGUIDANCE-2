@@ -24,7 +24,7 @@
           <v-icon left>mdi-plus</v-icon>
           Add Violation
         </v-btn>
-        <v-btn @click="navigateToArchive" class="mb-2 rounded-l add-record-button mr-2" dark>
+        <v-btn @click="navigateToArchive" class="mb-2 rounded-l add-record-button mr-2" to="/violationarchive" dark>
           <v-icon left>mdi-archive</v-icon>
           Archive
         </v-btn>
@@ -184,7 +184,13 @@
               prepend-icon="mdi-security"
               required
               placeholder="Select a sanction"
-              :items="sanctionOptions"
+              :items="[
+                    'A - Oral warning/reprimand',
+                    'A.1 - Item to be collected/ confiscated',
+                    'B - Warning with written agreement',
+                    'C - Suspension',
+                    'D - Non-readmission'
+                  ]"
             ></v-select>
           </v-col>
           <v-col cols="12">
@@ -488,7 +494,7 @@ export default {
     return;
   }
 
-  axios.put(`http://26.11.249.89:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
+  axios.put(`http://26.81.173.255:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
     .then(response => {
       console.log('Update response:', response.data);
 
@@ -693,7 +699,7 @@ formatDateTime(dateTimeString) {
 },
 
     fetchViolations() {
-      axios.get('http://26.11.249.89:8000/api/cases')
+      axios.get('http://26.81.173.255:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
           this.cases = response.data.cases.map((cases) => ({
@@ -720,16 +726,8 @@ formatDateTime(dateTimeString) {
     return this.cases.filter(v => v.student_id === student_id);
   },
   saveNewRecord() {
-  // Check if the student ID is provided
-  if (!this.editedItem.student_id) {
-    Swal.fire('Error', 'Student ID is required.', 'error');
-    return;
-  }
-
-  // Fetch existing violations for the student
-  const violationsForStudent = this.getStudentViolations(this.editedItem.student_id);
-
   // Check if the student already has 3 violations
+  const violationsForStudent = this.displayedViolations.filter(v => v.student_id === this.editedItem.student_id);
   if (violationsForStudent.length >= 3) {
     Swal.fire({
       icon: 'error',
@@ -740,59 +738,108 @@ formatDateTime(dateTimeString) {
     return;
   }
 
-  // Format the current date and time to 'YYYY-MM-DD HH:mm:ss'
-  const formatDateTime = (date) => {
-    const pad = (num) => num.toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
+  // Confirm with the user before saving the record
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to save this record?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+    confirmButtonColor: "#4CAF50",
+    cancelButtonText: '<span style="color: #ffffff;">No</span>',
+    cancelButtonColor: "#F44336",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Determine if we are updating or creating a new record
+      const apiUrl = this.editedItem.student_id
+        ? `http://26.81.173.255:8000/api/cases/${this.editedItem.con_id}`
+        : 'http://26.81.173.255:8000/api/cases';
 
-  // Add the current date and time to the editedItem
-  this.editedItem.case_date = formatDateTime(new Date());
+      const apiMethod = this.editedItem.student_id ? 'put' : 'post';
 
-  // Add the new record
-  axios.post('http://26.11.249.89:8000/api/cases', this.editedItem)
-    .then(response => {
-      // Successfully saved
-      this.cases.push(response.data); // Add the new violation to the list
-      Swal.fire('Success!', 'New violation record saved successfully!', 'success')
-        .then(() => {
-          // Close the dialog after showing the success message
+      axios[apiMethod](apiUrl, this.editedItem)
+        .then(response => {
+          this.fetchViolations();
           this.closeDialog();
+          Swal.fire({
+            title: this.editedItem.student_id ? 'Updated' : 'Saved',
+            text: this.editedItem.student_id ? 'Record Updated Successfully!' : 'Record Saved Successfully!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        })
+        .catch(error => {
+          console.error(error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Error saving record',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 3000,
+          });
         });
-    })
-    .catch(error => {
-      // Handle errors
-      console.error('Error saving new record:', error.response ? error.response.data : error.message);
-      Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
-    });
+    } else {
+      // Handle the case where the user cancels the action
+      this.closeDialog();
+    }
+  });
+
+  // Ensure the dialog is closed after the action
+  this.viewingRecords = false;
+  this.dialog = false;
 },
 
+// formatDateTime = (date) => {
+//   const pad = (num) => num.toString().padStart(2, '0');
+//   const year = date.getFullYear();
+//   const month = pad(date.getMonth() + 1);
+//   const day = pad(date.getDate());
+//   const hours = pad(date.getHours());
+//   const minutes = pad(date.getMinutes());
+//   const seconds = pad(date.getSeconds());
+//   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+// },
 
-  createRecord() {
-    const dataToSend = {
-      student_id: this.editedItem.student_id,
-      case_title: this.editedItem.case_title,
-      case_description: this.editedItem.case_description,
-      case_sanction: this.editedItem.case_sanction,
-      case_status: 0
-    };
+// this.editedItem.case_date = formatDateTime(new Date());
 
-    axios.post('http://your-api-url/cases', dataToSend)
-      .then(response => {
-        this.cases.push(response.data.case);
-        this.closeDialog();
-        Swal.fire('Saved!', 'Record saved successfully!', 'success');
-      })
-      .catch(error => {
-        console.error('Error saving new record:', error);
-      });
-  },
+// // Add the new record
+// axios.post(`http://26.81.173.255:8000/api/cases`, this.editedItem)
+//   .then(response => {                                         
+//     // Successfully saved
+//     this.cases.push(response.data); // Add the new violation to the list
+//     Swal.fire('Success!', 'New violation record saved successfully!', 'success')
+//       .then(() => {
+//         // Close the dialog after showing the success message
+//         this.closeDialog();
+//       });
+//   })
+//   .catch(error => {
+//     // Handle errors
+//     console.error('Error saving new record:', error.response ? error.response.data : error.message);
+//     Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
+//   });
+
+// Method to create a new record
+// createRecord() {
+//   const dataToSend = {
+//     student_id: this.editedItem.student_id,
+//     case_title: this.editedItem.case_title,
+//     case_description: this.editedItem.case_description,
+//     case_sanction: this.editedItem.case_sanction,
+//     case_status: 0
+//   };
+
+//   axios.post('http://your-api-url/cases', dataToSend)
+//     .then(response => {
+//       this.cases.push(response.data.case);
+//       this.closeDialog();
+//       Swal.fire('Saved!', 'Record saved successfully!', 'success');
+//     })
+//     .catch(error => {
+//       console.error('Error saving new record:', error);
+//     });
+// },
 
 archiveCase(caseId) {
     this.viewingRecords = false;  // Close the dialog after action
@@ -801,30 +848,49 @@ archiveCase(caseId) {
       text: 'Do you want to archive this record?',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes',
+      confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
       confirmButtonColor: "#4CAF50",
-      cancelButtonText: 'No',
+      cancelButtonText: '<span style="color: #ffffff;">No</span>',
       cancelButtonColor: "#F44336",
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log('Received ID for archiving:', caseId);
-        axios.post('http://26.11.249.89:8000/api/cases/arch', { cases_id: caseId })
+        console.log(caseId);
+        axios
+          .post(`http://26.81.173.255:8000/api/cases/${caseId}/arch`)
           .then(response => {
-            console.log('Record archived successfully:', response.data);
-            // Remove the archived item from the violations list
             this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
-            Swal.fire('Archived!', 'Record archived successfully!', 'success');
+            Swal.fire({
+            title: 'Archived',
+            text: 'Record Archived Successfully!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 3000,
+          });
           })
           .catch(error => {
             console.error('Error archiving record:', error.response ? error.response.data : error.message);
-            Swal.fire('Error', 'Error archiving record', 'error');
+            Swal.fire({
+            title: 'Error',
+            text: 'Error archiving record',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 3000,
           });
-      }
+          });
+      } else {
+      // Handle the case where the user cancels the action
+      Swal.fire({
+        title: 'Cancelled',
+        text: 'Archiving record was not archived',
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
     });
   },
-
-
-    openDialog() {
+  
+  openDialog() {
       this.editedItem = {
         id: null,
         student_id: '',
@@ -862,7 +928,8 @@ archiveCase(caseId) {
       this.editedItems= { ...id };
       this.viewingRecords = true;
     },
-    },
+    
+  },
   };
  
 </script>
