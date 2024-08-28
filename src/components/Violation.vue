@@ -108,14 +108,14 @@
             <v-row dense>
               <v-col cols="12">
                 <!-- <v-text-field -->
-                <v-text-field
+                <v-autocomplete
                   v-model="editedItem.student_id"
                   label="Student ID*"
                   prepend-icon="mdi-account"
                   required
                   type="number"
                   @input="handleInput"
-                ></v-text-field>
+                ></v-autocomplete>
                 <!-- ></v-text-field> -->
               </v-col>
               <v-col cols="12">
@@ -385,15 +385,9 @@
                     </v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action style="padding: 0.3rem;">
-                    <v-btn @click="editRecord(caseItem)" class="mr-2" small>
-                      <v-icon>mdi-pencil</v-icon>Edit
-                    </v-btn>
-                    <v-btn @click="clearCase(caseItem.cases_id)" class="mr-2" small>
-                      <v-icon>mdi-check</v-icon>Clear
-                    </v-btn>
-                    <v-btn @click="archiveCase(caseItem.cases_id)" class="mr-2" small>
-                      <v-icon>mdi-archive</v-icon>Archive
-                    </v-btn>
+                    <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
+                    <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
+                    <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
                   </v-list-item-action>
                 </v-list-item>
                 <hr>
@@ -404,7 +398,7 @@
           
           <!-- Violation History Column -->
           <v-col cols="6">
-    <v-card-title>
+            <v-card-title>
       Violation History
     </v-card-title>
     <v-list v-if="filteredViolations.length">
@@ -452,10 +446,13 @@ import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-
 export default {
   data() {
     return {
+      menuVisible: false,
+      showReportOptions: false,
+      reportFormat: '',
+      studentIdForReport: '',
       cases: [],
       violations: [],
       uniqueStudentIds: [],
@@ -467,9 +464,6 @@ export default {
       dialog: false,
       editRecordDialog: false,
       policyDialog: false,
-      showReportOptions: false,
-      reportFormat: 'PDF', // Default format
-      menuVisible: false,  // Controls the visibility of the menu
       editedItems: [],
       editedItem: {
         id: null, // Field to track record ID
@@ -537,26 +531,15 @@ export default {
     groupedCases() {
         return this.groupCasesByStudentId();
       },
-        filteredViolations() {
+    
+      filteredViolations() {
       return this.archivedViolations.filter(item => item.student_id === this.selectedStudentId);
     }
 
     },
 
   methods: {
-    showOptions(type) {
-      this.showReportOptions = true;
-      // Additional logic based on the type can be added here if needed
-    },
-    selectFormat(format) {
-      this.reportFormat = format;
-      this.showReportOptions = true;
-    },
-    handleClickOutside() {
-      // Reset report options when menu closes or user clicks outside
-      this.showReportOptions = false;
-    },
-  async fetchArchivedViolations() {
+    async fetchArchivedViolations() {
     try {
       const response = await axios.get('http://127.0.0.1:8000/api/archived', {
         params: {
@@ -575,7 +558,7 @@ export default {
       console.error("Error fetching archived violations:", error);
       this.archivedViolations = [];
     }
-  },
+    },
     watch: {
     selectedStudentId() {
       if (this.viewingRecords) {
@@ -673,7 +656,7 @@ export default {
       all_cases: student.cases
     }));
   },
-    formatDate(dateString) {
+ formatDate(dateString) {
   console.log('Input dateString:', dateString); // Log input for debugging
 
   if (!dateString || typeof dateString !== 'string') {
@@ -703,7 +686,6 @@ formatDateTime(dateTimeString) {
   };
   return date.toLocaleString('en-US', options); // Ensure correct formatting
 },
-
 selectFormat(format) {
       this.reportFormat = format;
       this.showReportOptions = true;
@@ -858,6 +840,7 @@ selectFormat(format) {
     viewStudentViolations(studentId) {
       this.selectedStudentId = studentId;
       this.selectedStudentViolations = this.cases.filter(caseItem => caseItem.student_id === studentId);
+      this.archiveViolation = this.cases.filter(historyItem => historyItem.student_id === studentId);
       this.viewingRecords = true;
     },
     formatDate(date) {
