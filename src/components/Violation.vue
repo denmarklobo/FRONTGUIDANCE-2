@@ -75,21 +75,29 @@
                   Generate Report by Student ID ({{ reportFormat }})
                 </v-btn>
               </v-list-item>
-              <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
+              <v-list-item>
+                <v-btn @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
                 <v-list-item-title>Generate Daily Report ({{ reportFormat }})</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
+              </v-btn>
+              </v-list-item>              
+              <v-list-item>
+                <v-btn  @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
                 <v-list-item-title>Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
+              </v-btn>
+              </v-list-item>              
+              <v-list-item>
+                <v-btn @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
                 <v-list-item-title>Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
+              </v-btn>
+              </v-list-item>              
+              <v-list-item>
+                <v-btn @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
                 <v-list-item-title>Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
+              </v-btn>
               </v-list-item>
             </template>
           </v-list>
@@ -108,14 +116,14 @@
             <v-row dense>
               <v-col cols="12">
                 <!-- <v-text-field -->
-                <v-autocomplete
+                <v-text-field
                   v-model="editedItem.student_id"
                   label="Student ID*"
                   prepend-icon="mdi-account"
                   required
                   type="number"
                   @input="handleInput"
-                ></v-autocomplete>
+                ></v-text-field>
                 <!-- ></v-text-field> -->
               </v-col>
               <v-col cols="12">
