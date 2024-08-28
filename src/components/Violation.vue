@@ -41,59 +41,59 @@
 
         <!-- Report Generation Dropdown -->
         <v-menu
-        offset-y
-        :close-on-content-click="false"
-        ref="menu"
-        @click:outside="handleClickOutside"
-        v-model="menuVisible"
-      >
-        <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
-            <v-icon left>mdi-file-chart</v-icon>
-            Generate Report
-            <v-icon right>mdi-menu-down</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item>
-            <v-btn @click="selectFormat('Excel')" class="m-2" dark>Generate as Excel</v-btn>
-            <v-btn @click="selectFormat('PDF')" class="m-2" dark>Generate as PDF</v-btn>
-          </v-list-item>
-          <template v-if="showReportOptions">
-            <v-list-item>
-              <v-text-field
-                v-model="studentIdForReport"
-                label="Enter Student ID"
-                prepend-icon="mdi-account"
-                class="mt-4"
-                hide-details
-              ></v-text-field>
-            </v-list-item>
-            <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
-              <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Daily Report ({{ reportFormat }})</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
-              <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
-              <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
-              <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
-                <v-icon left>mdi-file-chart</v-icon>
-                Generate Report by Student ID ({{ reportFormat }})
-              </v-btn>
-            </v-list-item>
+          offset-y
+          :close-on-content-click="false"
+          ref="menu"
+          @click:outside="handleClickOutside"
+          v-model="menuVisible"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
+              <v-icon left>mdi-file-chart</v-icon>
+              Generate Report
+              <v-icon right>mdi-menu-down</v-icon>
+            </v-btn>
           </template>
-        </v-list>
-      </v-menu>
+          <v-list>
+            <v-list-item>
+              <v-btn @click="selectFormat('Excel')" class="m-2" dark>Generate as Excel</v-btn>
+              <v-btn @click="selectFormat('PDF')" class="m-2" dark>Generate as PDF</v-btn>
+            </v-list-item>
+            <template v-if="showReportOptions">
+              <v-list-item>
+                <v-text-field
+                  v-model="studentIdForReport"
+                  label="Enter Student ID"
+                  prepend-icon="mdi-account"
+                  class="mt-4"
+                  hide-details
+                ></v-text-field>
+              </v-list-item>
+              <v-list-item>
+                <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
+                  <v-icon left>mdi-file-chart</v-icon>
+                  Generate Report by Student ID ({{ reportFormat }})
+                </v-btn>
+              </v-list-item>
+              <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
+                <v-list-item-icon></v-list-item-icon>
+                <v-list-item-title>Generate Daily Report ({{ reportFormat }})</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
+                <v-list-item-icon></v-list-item-icon>
+                <v-list-item-title>Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
+                <v-list-item-icon></v-list-item-icon>
+                <v-list-item-title>Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
+                <v-list-item-icon></v-list-item-icon>
+                <v-list-item-title>Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-menu>
       </v-toolbar>
     </template>
 
@@ -108,14 +108,14 @@
             <v-row dense>
               <v-col cols="12">
                 <!-- <v-text-field -->
-                <v-autocomplete
+                <v-text-field
                   v-model="editedItem.student_id"
                   label="Student ID*"
                   prepend-icon="mdi-account"
                   required
                   type="number"
                   @input="handleInput"
-                ></v-autocomplete>
+                ></v-text-field>
                 <!-- ></v-text-field> -->
               </v-col>
               <v-col cols="12">
@@ -385,9 +385,15 @@
                     </v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action style="padding: 0.3rem;">
-                    <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
-                    <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
-                    <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
+                    <v-btn @click="editRecord(caseItem)" class="mr-2" small>
+                      <v-icon>mdi-pencil</v-icon>Edit
+                    </v-btn>
+                    <v-btn @click="clearCase(caseItem.cases_id)" class="mr-2" small>
+                      <v-icon>mdi-check</v-icon>Clear
+                    </v-btn>
+                    <v-btn @click="archiveCase(caseItem.cases_id)" class="mr-2" small>
+                      <v-icon>mdi-archive</v-icon>Archive
+                    </v-btn>
                   </v-list-item-action>
                 </v-list-item>
                 <hr>
@@ -443,6 +449,9 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
 
 export default {
   data() {
@@ -664,32 +673,6 @@ export default {
       all_cases: student.cases
     }));
   },
-
-    generateReportByStudentId() {
-      if (!this.studentIdForReport) {
-        Swal.fire({
-          icon: "warning",
-          title: "No Student ID Provided",
-          text: "Please enter a student ID before generating the report.",
-        });
-        return;
-      }
-
-      const filteredViolations = this.cases.filter(
-        (violation) => violation.student_id === this.studentIdForReport
-      );
-
-      if (filteredViolations.length === 0) {
-        Swal.fire({
-          icon: "info",
-          title: "No Records Found",
-          text: `No cases found for Student ID: ${this.studentIdForReport}.`,
-        });
-        return;
-      }
-
-      this.exportReport(filteredViolations, `Report for Student ID: ${this.studentIdForReport}`);
-    },
     formatDate(dateString) {
   console.log('Input dateString:', dateString); // Log input for debugging
 
@@ -721,15 +704,37 @@ formatDateTime(dateTimeString) {
   return date.toLocaleString('en-US', options); // Ensure correct formatting
 },
 
-    handleInput(event) {
-      // Extract the value from the event
-      const value = event.target.value;
+selectFormat(format) {
+      this.reportFormat = format;
+      this.showReportOptions = true;
+    },
 
-      // Remove any non-digit characters
-      const digitsOnly = value.replace(/\D/g, '');
+    generateReportByStudentId() {
+      if (!this.studentIdForReport) {
+        Swal.fire({
+          icon: "warning",
+          title: "No Student ID Provided",
+          text: "Please enter a student ID before generating the report.",
+        });
+        return;
+      }
 
-      // Limit the value to a maximum of 12 digits
-      this.editedItem.student_id = digitsOnly.slice(0, 12);
+      const filteredViolations = this.cases.filter(
+        (violation) => violation.student_id === this.studentIdForReport
+      );
+
+      if (filteredViolations.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "No Records Found",
+          text: `No cases found for Student ID: ${this.studentIdForReport}.`,
+        });
+        return;
+      }
+
+      this.reportFormat === 'PDF'
+        ? this.exportPDF(filteredViolations, `Report for Student ID: ${this.studentIdForReport}`)
+        : this.exportExcel(filteredViolations, `Report for Student ID: ${this.studentIdForReport}`);
     },
 
     generateDailyReport() {
@@ -766,48 +771,75 @@ formatDateTime(dateTimeString) {
         return caseDate >= startDate && caseDate < endDate;
       });
 
-      this.exportReport(filteredViolations, reportTitle);
+      this.reportFormat === 'PDF'
+        ? this.exportPDF(filteredViolations, reportTitle)
+        : this.exportExcel(filteredViolations, reportTitle);
     },
 
-    exportReport(violations, title) {
-  try {
-    // Ensure sheet name does not exceed 31 characters
-    const safeTitle = title.length > 31 ? title.substring(0, 31) : title || 'Report';
+    exportExcel(violations, title) {
+      try {
+        const safeTitle = title.length > 31 ? title.substring(0, 31) : title || 'Report';
+        const data = violations.map((v) => ({
+          'Student ID': v.student_id,
+          'Full Name': v.full_name,
+          'Title': v.case_title,
+          'Description': v.case_description,
+          'Sanction': v.case_sanction,
+          'Status': v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
+          'Date': v.case_date
+        }));
 
-    const data = violations.map((v) => ({
-      'Student ID': v.student_id,
-      'Full Name': v.full_name,
-      'Title': v.case_title,
-      'Description': v.case_description,
-      'Sanction': v.case_sanction,
-      'Status': v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
-      'Date': v.case_date
-    }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        ws['!cols'] = Array(data[0] ? Object.keys(data[0]).length : 0).fill({ width: 18 });
 
-    const ws = XLSX.utils.json_to_sheet(data);
-    ws['!cols'] = Array(data[0] ? Object.keys(data[0]).length : 0).fill({ width: 18 });
+        const centerStyle = {
+          alignment: { horizontal: 'center', vertical: 'center' }
+        };
 
-    const centerStyle = {
-      alignment: { horizontal: 'center', vertical: 'center' }
-    };
+        for (let cellAddress in ws) {
+          if (cellAddress[0] === '!') continue;
+          if (!ws[cellAddress].s) ws[cellAddress].s = {};
+          Object.assign(ws[cellAddress].s, centerStyle);
+        }
 
-    for (let cellAddress in ws) {
-      if (cellAddress[0] === '!') continue;
-      if (!ws[cellAddress].s) ws[cellAddress].s = {};
-      Object.assign(ws[cellAddress].s, centerStyle);
-    }
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, safeTitle);
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, safeTitle); // Use safeTitle here
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `${title}.xlsx`);
+      } catch (error) {
+        console.error('Error exporting report:', error);
+      }
+    },
 
-    saveAs(blob, `${title}.xlsx`);
-  } catch (error) {
-    console.error('Error exporting report:', error);
-  }
-},
+    exportPDF(violations, title) {
+      try {
+        const doc = new jsPDF();
+        doc.text(title, 10, 10);
+
+        const data = violations.map((v) => [
+          v.student_id,
+          v.full_name,
+          v.case_title,
+          v.case_description,
+          v.case_sanction,
+          v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
+          v.case_date
+        ]);
+
+        doc.autoTable({
+          head: [['Student ID', 'Full Name', 'Title', 'Description', 'Sanction', 'Status', 'Date']],
+          body: data,
+          startY: 20
+        });
+
+        doc.save(`${title}.pdf`);
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+      }
+    },
 
     fetchViolations() {
       axios.get('http://127.0.0.1:8000/api/cases')
