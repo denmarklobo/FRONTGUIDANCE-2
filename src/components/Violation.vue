@@ -40,15 +40,26 @@
         </v-btn>
 
         <!-- Report Generation Dropdown -->
-        <v-menu offset-y close-on-content-click="false">
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
-              <v-icon left>mdi-file-chart</v-icon>
-              Generate Report
-              <v-icon right>mdi-menu-down</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
+        <v-menu
+        offset-y
+        :close-on-content-click="false"
+        ref="menu"
+        @click:outside="handleClickOutside"
+        v-model="menuVisible"
+      >
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" class="mb-2 rounded-l add-record-button" dark>
+            <v-icon left>mdi-file-chart</v-icon>
+            Generate Report
+            <v-icon right>mdi-menu-down</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
+            <v-btn @click="selectFormat('Excel')" class="m-2" dark>Generate as Excel</v-btn>
+            <v-btn @click="selectFormat('PDF')" class="m-2" dark>Generate as PDF</v-btn>
+          </v-list-item>
+          <template v-if="showReportOptions">
             <v-list-item>
               <v-text-field
                 v-model="studentIdForReport"
@@ -60,28 +71,29 @@
             </v-list-item>
             <v-list-item @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
               <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Daily Report</v-list-item-title>
+              <v-list-item-title>Generate Daily Report ({{ reportFormat }})</v-list-item-title>
             </v-list-item>
             <v-list-item @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
               <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Weekly Report</v-list-item-title>
+              <v-list-item-title>Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
             </v-list-item>
             <v-list-item @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
               <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Monthly Report</v-list-item-title>
+              <v-list-item-title>Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
             </v-list-item>
             <v-list-item @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
               <v-list-item-icon></v-list-item-icon>
-              <v-list-item-title>Generate Yearly Report</v-list-item-title>
+              <v-list-item-title>Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
             </v-list-item>
             <v-list-item>
               <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
                 <v-icon left>mdi-file-chart</v-icon>
-                Generate Report by Student ID
+                Generate Report by Student ID ({{ reportFormat }})
               </v-btn>
             </v-list-item>
-          </v-list>
-        </v-menu>
+          </template>
+        </v-list>
+      </v-menu>
       </v-toolbar>
     </template>
 
@@ -446,6 +458,9 @@ export default {
       dialog: false,
       editRecordDialog: false,
       policyDialog: false,
+      showReportOptions: false,
+      reportFormat: 'PDF', // Default format
+      menuVisible: false,  // Controls the visibility of the menu
       editedItems: [],
       editedItem: {
         id: null, // Field to track record ID
@@ -517,6 +532,18 @@ export default {
     },
 
   methods: {
+    showOptions(type) {
+      this.showReportOptions = true;
+      // Additional logic based on the type can be added here if needed
+    },
+    selectFormat(format) {
+      this.reportFormat = format;
+      this.showReportOptions = true;
+    },
+    handleClickOutside() {
+      // Reset report options when menu closes or user clicks outside
+      this.showReportOptions = false;
+    },
     async fetchArchivedViolations() {
   try {
     const response = await axios.get('http://127.0.0.1:8000/api/archived', {
