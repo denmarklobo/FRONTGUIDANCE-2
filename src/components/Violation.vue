@@ -386,32 +386,32 @@
           
           <!-- Violation History Column -->
           <v-col cols="6">
-            <v-card-title>
-              Violation History
-            </v-card-title>
-            <v-list v-if="archivedViolations.length">
-              <v-list-item-group v-for="(historyItem, index) in archivedViolations" :key="index">
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title style="padding: 0.3rem;">
-                      <strong>Case Title:</strong> {{ historyItem.case_title }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Description:</strong> {{ historyItem.case_description }}
-                    </v-list-item-subtitle>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Sanction:</strong> {{ historyItem.case_sanction }}
-                    </v-list-item-subtitle>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Date and Time:</strong> {{ formatDateTime(historyItem.case_date) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <hr>
-              </v-list-item-group>
-            </v-list>
-            <v-alert v-else>No Violation history found.</v-alert>
-          </v-col>
+    <v-card-title>
+      Violation History
+    </v-card-title>
+    <v-list v-if="filteredViolations.length">
+      <v-list-item-group>
+        <v-list-item v-for="historyItem in filteredViolations" :key="historyItem.cases_id">
+          <v-list-item-content>
+            <v-list-item-title style="padding: 0.3rem;">
+              <strong>Case Title:</strong> {{ historyItem.case_title }}
+            </v-list-item-title>
+            <v-list-item-subtitle style="padding: 0.3rem;">
+              <strong>Description:</strong> {{ historyItem.case_description }}
+            </v-list-item-subtitle>
+            <v-list-item-subtitle style="padding: 0.3rem;">
+              <strong>Sanction:</strong> {{ historyItem.case_sanction }}
+            </v-list-item-subtitle>
+            <v-list-item-subtitle style="padding: 0.3rem;">
+              <strong>Date and Time:</strong> {{ formatDateTime(historyItem.case_date) }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <hr>
+      </v-list-item-group>
+    </v-list>
+    <v-alert v-else>No Violation history found.</v-alert>
+  </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions>
@@ -513,36 +513,33 @@ export default {
     groupedCases() {
         return this.groupCasesByStudentId();
       },
-    
+        filteredViolations() {
+      return this.archivedViolations.filter(item => item.student_id === this.selectedStudentId);
+    }
+
     },
 
   methods: {
-    async fetchArchivedViolations() {
-  try {
-    const response = await axios.get('http://127.0.0.1:8000/api/archived', {
-      params: {
-        student_id: this.selectedStudentId
+  async fetchArchivedViolations() {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/archived', {
+        params: {
+          student_id: this.selectedStudentId
+        }
+      });
+      console.log("Full Response Data:", response.data);
+      
+      // Verify data structure
+      if (response.data && response.data.archivedViolations) {
+        this.archivedViolations = response.data.archivedViolations;
+      } else {
+        this.archivedViolations = [];
       }
-    });
-    console.log("Response data:", response.data);
-    this.archivedViolations = response.data;
-  } catch (error) {
-    console.error("Error fetching archived violations:", error);
-    if (error.response) {
-      // Request made and server responded with a status code
-      console.error("Error response data:", error.response.data);
-      console.error("Error response status:", error.response.status);
-      console.error("Error response headers:", error.response.headers);
-    } else if (error.request) {
-      // Request made but no response received
-      console.error("Error request data:", error.request);
-    } else {
-      // Something else happened in setting up the request
-      console.error("Error message:", error.message);
+    } catch (error) {
+      console.error("Error fetching archived violations:", error);
+      this.archivedViolations = [];
     }
-    this.archivedViolations = [];
-  }
-},
+  },
     watch: {
     selectedStudentId() {
       if (this.viewingRecords) {
