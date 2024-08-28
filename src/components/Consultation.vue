@@ -204,16 +204,22 @@ export default {
 
   methods: {
     getCurrentDate() {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const hh = String(today.getHours()).padStart(2, '0');
-    const min = String(today.getMinutes()).padStart(2, '0');
-    const ss = String(today.getSeconds()).padStart(2, '0');
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const hh = String(today.getHours()).padStart(2, '0');
+      const min = String(today.getMinutes()).padStart(2, '0');
+      const ss = String(today.getSeconds()).padStart(2, '0');
 
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
-  },
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+    },
+    
+    // Add the missing formatDate function here
+    formatDate(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString(undefined, options);
+    },
     generateDailyReport() {
       const now = new Date();
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());

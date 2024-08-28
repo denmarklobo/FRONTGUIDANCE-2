@@ -86,7 +86,7 @@ export default {
     fetchArchivedViolations() {
       axios.get('http://127.0.0.1:8000/api/deletedCases')
         .then(response => {
-          this.deletedCases = response.data.archivedViolations || [];
+          this.deletedCases = response.data.deletedCases || [];
         })
         .catch(error => {
           console.error('Error fetching archived violations', error);

@@ -368,7 +368,8 @@
             </v-list-item-content>
             <v-list-item-action style="padding: 0.3rem;">
               <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
-              <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive </v-btn>
+              <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
+              <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
             </v-list-item-action>
           </v-list-item>
           <hr>
@@ -801,6 +802,55 @@ formatDateTime(dateTimeString) {
   this.viewingRecords = false;
   this.dialog = false;
 },
+archiveCase(caseId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to archive this record?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+      confirmButtonColor: "#4CAF50",
+      cancelButtonText: '<span style="color: #ffffff;">No</span>',
+      cancelButtonColor: "#F44336",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .post(`http://26.11.249.89:8000/api/cases/delete/${caseId}`)
+          .then(response => {
+            // Handle successful response
+            console.log('Archived case response:', response.data);
+            this.fetchViolations(); // Refresh the list of violations
+            Swal.fire({
+              title: 'Archived',
+              text: 'Record Archived Successfully!',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          })
+          .catch(error => {
+            // Handle error response
+            console.error('Error archiving record:', error.response ? error.response.data : error.message);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error archiving record',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          });
+      } else {
+        // Handle the case where the user cancels the action
+        Swal.fire({
+          title: 'Cancelled',
+          text: 'Archiving record was not performed',
+          icon: 'info',
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      }
+    });
+},
 
 // formatDateTime = (date) => {
 //   const pad = (num) => num.toString().padStart(2, '0');
@@ -853,7 +903,7 @@ formatDateTime(dateTimeString) {
 //     });
 // },
 
-archiveCase(caseId) {
+clearCase(caseId) {
     this.viewingRecords = false;  // Close the dialog after action
     Swal.fire({
       title: 'Are you sure?',

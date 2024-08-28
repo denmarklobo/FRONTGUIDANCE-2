@@ -106,9 +106,6 @@
       cancelButtonColor: "#F44336",
     }).then((result) => {
       if (result.isConfirmed) {
-        // console.log('Received ID for restoring:', cases_id);
-        // const isConfirmed = confirm('Are you sure you want to restore this record?');
-        // if (isConfirmed) {
           axios.post('http://127.0.0.1:8000/api/cases/restore', { cases_id })
             .then(response => {
               console.log('Record restored successfully:', response.data);

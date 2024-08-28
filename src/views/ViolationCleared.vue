@@ -1,10 +1,10 @@
 <template>
     <main>
         <div class="top-container">
-        <h1 class="bg-title">Archived Violations</h1>
+        <h1 class="bg-title">Cleared Violations</h1>
         <div class="inventory">
-            <span class="material-icons">archive</span>
-            <span class="text">Archived Violations</span>
+            <span class="material-icons">check</span>
+            <span class="text">Cleared Violations</span>
             <hr>
         </div>
     </div>
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import ViolationArchive from '../components/ViolationArchive.vue';
+import ViolationArchive from '../components/ViolationCleared.vue';
 
 export default {
   components: {
