@@ -4,6 +4,7 @@
     :items="displayedViolations"
     :search="search"
     :sort-by="[{ key: 'case_date', order: 'desc' }]"
+    class="no-pagination"
   >
     <template v-slot:top>
       <v-toolbar flat>
@@ -304,7 +305,7 @@
 
     <v-card>
   <v-card-title class="text-h6 font-weight-bold">
-    <span>Student List</span>
+    <span>Students With Active Violations</span>
   </v-card-title>
   <v-divider></v-divider>
   <v-card-text>
@@ -342,46 +343,83 @@
 
     
 <!-- Dialog for viewing all violations of the selected student -->
-<v-dialog v-model="viewingRecords" max-width="600px">
-  <v-card>
-    <v-card-title>
-      Violation Details for Student ID: {{ selectedStudentId }}
-    </v-card-title>
-    <v-card-text v-if="selectedStudentViolations.length">
-      <v-list>
-        <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
-          <v-list-item :class="caseStatusClass(caseItem)">
-            <v-list-item-content>
-              <v-list-item-title style="padding: 0.3rem;">
-                <strong>Case Title:</strong> {{ caseItem.case_title }}
-              </v-list-item-title>
-              <!-- Optional Description -->
-              <!-- <v-list-item-subtitle style="padding: 0.3rem;">
-                <strong>Description:</strong> {{ caseItem.case_description }}
-              </v-list-item-subtitle> -->
-              <v-list-item-subtitle style="padding: 0.3rem;">
-                <strong>Sanction:</strong> {{ caseItem.case_sanction }}
-              </v-list-item-subtitle>
-              <v-list-item-subtitle style="padding: 0.3rem;">
-                <strong>Date and Time:</strong> {{ formatDateTime(caseItem.case_date) }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action style="padding: 0.3rem;">
-              <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
-              <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
-              <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
-            </v-list-item-action>
-          </v-list-item>
-          <hr>
-        </v-list-item-group>
-      </v-list>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
+<v-dialog v-model="viewingRecords" max-width="900px" @click:outside="viewingRecords = false">
+    <v-card>
+      <v-card-title>
+        Violation Details for Student ID: {{ selectedStudentId }}
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <!-- Active Violations Column -->
+          <v-col cols="6">
+            <v-card-title>
+              Active Violations
+            </v-card-title>
+            <v-list v-if="selectedStudentViolations.length">
+              <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
+                <v-list-item :class="caseStatusClass(caseItem)">
+                  <v-list-item-content>
+                    <v-list-item-title style="padding: 0.3rem;">
+                      <strong>Case Title:</strong> {{ caseItem.case_title }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Description:</strong> {{ caseItem.case_description }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Sanction:</strong> {{ caseItem.case_sanction }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Date and Time:</strong> {{ formatDateTime(caseItem.case_date) }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action style="padding: 0.3rem;">
+                    <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
+                    <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
+                    <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+                <hr>
+              </v-list-item-group>
+            </v-list>
+            <v-alert v-else>No active violations found.</v-alert>
+          </v-col>
+          
+          <!-- Violation History Column -->
+          <v-col cols="6">
+            <v-card-title>
+              Violation History
+            </v-card-title>
+            <v-list v-if="archivedViolations.length">
+              <v-list-item-group v-for="(historyItem, index) in archivedViolations" :key="index">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title style="padding: 0.3rem;">
+                      <strong>Case Title:</strong> {{ historyItem.case_title }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Description:</strong> {{ historyItem.case_description }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Sanction:</strong> {{ historyItem.case_sanction }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle style="padding: 0.3rem;">
+                      <strong>Date and Time:</strong> {{ formatDateTime(historyItem.case_date) }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <hr>
+              </v-list-item-group>
+            </v-list>
+            <v-alert v-else>No Violation history found.</v-alert>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   </v-data-table>
 </template>
@@ -402,6 +440,7 @@ export default {
       uniqueStudentIds: [],
       selectedStudentId: null,
       selectedStudentViolations: [],
+      archivedViolations: [],
       viewingRecords: false,
       studentIdForReport: "",
       dialog: false,
@@ -417,6 +456,7 @@ export default {
         case_status: 0,
         case_date: ''
       },
+      
       search: '',
       headers: [
         { title: 'Student ID', value: 'student_id' },
@@ -434,6 +474,7 @@ export default {
 
   mounted() {
     this.fetchViolations();
+    this.fetchArchivedViolations();
   },
   computed: {
     displayedViolations() {
@@ -476,6 +517,39 @@ export default {
     },
 
   methods: {
+    async fetchArchivedViolations() {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/archived', {
+      params: {
+        student_id: this.selectedStudentId
+      }
+    });
+    console.log("Response data:", response.data);
+    this.archivedViolations = response.data;
+  } catch (error) {
+    console.error("Error fetching archived violations:", error);
+    if (error.response) {
+      // Request made and server responded with a status code
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+    } else if (error.request) {
+      // Request made but no response received
+      console.error("Error request data:", error.request);
+    } else {
+      // Something else happened in setting up the request
+      console.error("Error message:", error.message);
+    }
+    this.archivedViolations = [];
+  }
+},
+    watch: {
+    selectedStudentId() {
+      if (this.viewingRecords) {
+        this.fetchArchivedViolations();
+      }
+    }
+    },
     getStudentViolations(student_id) {
     // Filter violations by student_id
     return this.cases.filter(v => v.student_id === student_id);
@@ -739,8 +813,15 @@ formatDateTime(dateTimeString) {
     return this.cases.filter(v => v.student_id === student_id);
   },
   saveNewRecord() {
+  if (!this.editedItem.student_id) {
+    Swal.fire('Error', 'Student ID is required.', 'error');
+    return;
+  }
+
+  // Fetch existing violations for the student
+  const violationsForStudent = this.getStudentViolations(this.editedItem.student_id);
+
   // Check if the student already has 3 violations
-  const violationsForStudent = this.displayedViolations.filter(v => v.student_id === this.editedItem.student_id);
   if (violationsForStudent.length >= 3) {
     Swal.fire({
       icon: 'error',
@@ -751,104 +832,86 @@ formatDateTime(dateTimeString) {
     return;
   }
 
-  // Confirm with the user before saving the record
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'Do you want to save this record?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
-    confirmButtonColor: "#4CAF50",
-    cancelButtonText: '<span style="color: #ffffff;">No</span>',
-    cancelButtonColor: "#F44336",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Determine if we are updating or creating a new record
-      const apiUrl = this.editedItem.student_id
-        ? `http://127.0.0.1:8000/api/cases/${this.editedItem.con_id}`
-        : 'http://127.0.0.1:8000/api/cases';
+  // Format the current date and time to 'YYYY-MM-DD HH:mm:ss'
+  const formatDateTime = (date) => {
+    const pad = (num) => num.toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
 
-      const apiMethod = this.editedItem.student_id ? 'put' : 'post';
+  // Add the current date and time to the editedItem
+  this.editedItem.case_date = formatDateTime(new Date());
 
-      axios[apiMethod](apiUrl, this.editedItem)
-        .then(response => {
-          this.fetchViolations();
+  // Add the new record
+  axios.post('http://127.0.0.1:8000/api/cases', this.editedItem)
+    .then(response => {
+      // Successfully saved
+      this.cases.push(response.data); // Add the new violation to the list
+      Swal.fire('Success!', 'New violation record saved successfully!', 'success')
+        .then(() => {
+          // Close the dialog after showing the success message
           this.closeDialog();
-          Swal.fire({
-            title: this.editedItem.student_id ? 'Updated' : 'Saved',
-            text: this.editedItem.student_id ? 'Record Updated Successfully!' : 'Record Saved Successfully!',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 3000,
-          });
-        })
-        .catch(error => {
-          console.error(error);
-          Swal.fire({
-            title: 'Error',
-            text: 'Error saving record',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 3000,
-          });
         });
-    } else {
-      // Handle the case where the user cancels the action
-      this.closeDialog();
-    }
-  });
-
-  // Ensure the dialog is closed after the action
-  this.viewingRecords = false;
-  this.dialog = false;
+    })
+    .catch(error => {
+      // Handle errors
+      console.error('Error saving new record:', error.response ? error.response.data : error.message);
+      Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
+    });
 },
+
 archiveCase(caseId) {
     Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to archive this record?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
-      confirmButtonColor: "#4CAF50",
-      cancelButtonText: '<span style="color: #ffffff;">No</span>',
-      cancelButtonColor: "#F44336",
+        title: 'Are you sure?',
+        text: 'Do you want to archive this record?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
+        confirmButtonColor: "#4CAF50",
+        cancelButtonText: '<span style="color: #ffffff;">No</span>',
+        cancelButtonColor: "#F44336",
     }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .post(`http://26.11.249.89:8000/api/cases/delete/${caseId}`)
-          .then(response => {
-            // Handle successful response
-            console.log('Archived case response:', response.data);
-            this.fetchViolations(); // Refresh the list of violations
+        if (result.isConfirmed) {
+            axios
+                .post(`http://127.0.0.1:8000/api/cases/delete/${caseId}`) // Ensure the URL matches the route definition
+                .then(response => {
+                    // Handle successful response
+                    console.log('Archived case response:', response.data);
+                    this.fetchViolations(); // Refresh the list of violations
+                    Swal.fire({
+                        title: 'Archived',
+                        text: 'Record Archived Successfully!',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                })
+                .catch(error => {
+                    // Handle error response
+                    console.error('Error archiving record:', error.response ? error.response.data : error.message);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error archiving record',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 3000,
+                    });
+                });
+        } else {
+            // Handle the case where the user cancels the action
             Swal.fire({
-              title: 'Archived',
-              text: 'Record Archived Successfully!',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 3000,
+                title: 'Cancelled',
+                text: 'Archiving record was not performed',
+                icon: 'info',
+                showConfirmButton: false,
+                timer: 3000,
             });
-          })
-          .catch(error => {
-            // Handle error response
-            console.error('Error archiving record:', error.response ? error.response.data : error.message);
-            Swal.fire({
-              title: 'Error',
-              text: 'Error archiving record',
-              icon: 'error',
-              showConfirmButton: false,
-              timer: 3000,
-            });
-          });
-      } else {
-        // Handle the case where the user cancels the action
-        Swal.fire({
-          title: 'Cancelled',
-          text: 'Archiving record was not performed',
-          icon: 'info',
-          showConfirmButton: false,
-          timer: 3000,
-        });
-      }
+        }
     });
 },
 
@@ -918,37 +981,37 @@ clearCase(caseId) {
       if (result.isConfirmed) {
         console.log(caseId);
         axios
-          .post(`http://127.0.0.1:8000/api/cases/${caseId}/arch`)
+          .post(`http://127.0.0.1:8000/api/cases/arch`, null, { params: { cases_id: caseId } }) // Use query parameters
           .then(response => {
             this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
             Swal.fire({
-            title: 'Archived',
-            text: 'Record Archived Successfully!',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 3000,
-          });
+              title: 'Archived',
+              text: 'Record Archived Successfully!',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 3000,
+            });
           })
           .catch(error => {
             console.error('Error archiving record:', error.response ? error.response.data : error.message);
             Swal.fire({
-            title: 'Error',
-            text: 'Error archiving record',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 3000,
-          });
+              title: 'Error',
+              text: 'Error archiving record',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 3000,
+            });
           });
       } else {
-      // Handle the case where the user cancels the action
-      Swal.fire({
-        title: 'Cancelled',
-        text: 'Archiving record was not archived',
-        icon: 'info',
-        showConfirmButton: false,
-        timer: 3000,
-      });
-    }
+        // Handle the case where the user cancels the action
+        Swal.fire({
+          title: 'Cancelled',
+          text: 'Archiving record was not archived',
+          icon: 'info',
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      }
     });
   },
   
@@ -999,6 +1062,7 @@ clearCase(caseId) {
   };
  
 </script>
+
 
 <style scoped>
   .v-card-title {
