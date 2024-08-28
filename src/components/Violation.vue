@@ -385,9 +385,15 @@
                     </v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action style="padding: 0.3rem;">
-                    <v-btn @click="editRecord(caseItem)" class="mr-2" small> Edit </v-btn>
-                    <v-btn @click="clearCase(caseItem.cases_id)" small> Clear Violation </v-btn>
-                    <v-btn @click="archiveCase(caseItem.cases_id)" small> Archive Violation </v-btn>
+                    <v-btn @click="editRecord(caseItem)" class="mr-2" small>
+                      <v-icon>mdi-pencil</v-icon>Edit
+                    </v-btn>
+                    <v-btn @click="clearCase(caseItem.cases_id)" class="mr-2" small>
+                      <v-icon>mdi-check</v-icon>Clear
+                    </v-btn>
+                    <v-btn @click="archiveCase(caseItem.cases_id)" class="mr-2" small>
+                      <v-icon>mdi-archive</v-icon>Archive
+                    </v-btn>
                   </v-list-item-action>
                 </v-list-item>
                 <hr>
