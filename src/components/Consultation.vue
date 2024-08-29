@@ -290,7 +290,7 @@ export default {
       }
   },
   fetchConsultations() {
-  axios.get('http://127.0.0.1:8000/api/consultation')
+  axios.get('http://26.11.249.89:8000/api/consultation')
     .then(response => {
       this.displayedConsultations = response.data.consultations.map(consultation => {
         const { student_profile } = consultation;
@@ -355,7 +355,7 @@ export default {
         if (result.isConfirmed) {
           if (this.editedItem.con_id) {
             // Update existing record
-            axios.put(`http://127.0.0.1:8000/api/consultation/${this.editedItem.con_id}, this.editedItem`)
+            axios.put(`http://26.11.249.89:8000/api/consultation/${this.editedItem.con_id}, this.editedItem`)
               .then(response => {
                 this.fetchConsultations();
                 this.closeDialog();
@@ -379,7 +379,7 @@ export default {
               });
           } else {
             // Add new record
-            axios.post('http://127.0.0.1:8000/api/consultation', this.editedItem)
+            axios.post('http://26.11.249.89:8000/api/consultation', this.editedItem)
               .then(response => {
                 console.log('Record saved successfully:', response.data);
                 this.displayedConsultations.push(response.data.consultation);
@@ -407,7 +407,7 @@ export default {
            });
     
       if (this.validateForm()) {
-        axios.post('http://127.0.0.1:8000/api/consultations', this.editedItem)
+        axios.post('http://26.11.249.89:8000/api/consultations', this.editedItem)
           .then(response => {
             console.log('Record saved successfully:', response.data);
             this.displayedConsultations.push(response.data.consultation);
@@ -447,7 +447,7 @@ archiveItem(id) {
     if (result.isConfirmed) {
       console.log(id);
       axios
-        .post(`http://127.0.0.1:8000/api/consultation/${id}/archive`)
+        .post(`http://26.11.249.89:8000/api/consultation/${id}/archive`)
         .then((response) => {
           this.fetchConsultations();
           Swal.fire({
@@ -484,7 +484,7 @@ archiveItem(id) {
 archiveConfirmed() {
   if (this.selectedConsultationId !== null) {
     axios
-      .post(`http://127.0.0.1:8000/api/consultation/${this.selectedConsultationId}/archive`)
+      .post(`http://26.11.249.89:8000/api/consultation/${this.selectedConsultationId}/archive`)
       .then((response) => {
         this.fetchConsultations();
         this.archiveDialog = false;
@@ -520,7 +520,7 @@ archiveConfirmed() {
   },
     // archiveConfirmed() {
     //   if (this.selectedConsultationId !== null) {
-    //     axios.post('http://127.0.0.1:8000/api/consultation/${this.selectedConsultationId}/archive')
+    //     axios.post('http://26.11.249.89:8000/api/consultation/${this.selectedConsultationId}/archive')
     //       .then(response => {
     //         console.log('Consultation archived successfully:', response.data);
     //         this.updateConsultations();
@@ -533,7 +533,7 @@ archiveConfirmed() {
     // },
 //     updateConsultations() {
 //       // Method to refresh the list of consultation or update the local state
-//       axios.get('http://127.0.0.1:8000/api/consultation')
+//       axios.get('http://26.11.249.89:8000/api/consultation')
 //         .then(response => {
 //           this.consultations = response.data.consultations;
 //         })

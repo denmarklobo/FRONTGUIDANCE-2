@@ -50,7 +50,7 @@ const chartOptions = ref({
 onMounted(async () => {
   try {
     // Make the API request to fetch violations per grade
-    const responseJHS = await axios.get('http://127.0.0.1:8000/api/cons/jhs');
+    const responseJHS = await axios.get('http://26.11.249.89:8000/api/cons/jhs');
     const fetchedData = responseJHS.data.data;
     console.log("Fetched data:", fetchedData);
 
