@@ -477,11 +477,11 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import ExcelJS from 'exceljs'
 
 export default {
   data() {
@@ -797,48 +797,167 @@ selectFormat(format) {
         : this.exportExcel(filteredViolations, reportTitle);
     },
 
-    exportExcel(violations, title) {
+    async exportExcel(violations, title) {
       try {
-        const safeTitle = title.length > 31 ? title.substring(0, 31) : title || 'Report';
-        const data = violations.map((v) => ({
-          'Student ID': v.student_id,
-          'Full Name': v.full_name,
-          'Title': v.case_title,
-          'Description': v.case_description,
-          'Sanction': v.case_sanction,
-          'Status': v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
-          'Date': v.case_date
-        }));
+        // Create a new workbook and add a worksheet
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Report');
 
-        const ws = XLSX.utils.json_to_sheet(data);
-        ws['!cols'] = Array(data[0] ? Object.keys(data[0]).length : 0).fill({ width: 18 });
+    // Fetch images and convert to base64
+    const [leftImageResponse, rightImageResponse] = await Promise.all([
+      fetch('/src/assets/SNA Logo no BG.png'), // Replace with the path to the left image
+      fetch('/src/assets/SNA_LOGO2 no bg.png') // Replace with the path to the right image
+    ]);
 
-        const centerStyle = {
-          alignment: { horizontal: 'center', vertical: 'center' }
-        };
+    const [leftImageBlob, rightImageBlob] = await Promise.all([
+      leftImageResponse.blob(),
+      rightImageResponse.blob()
+    ]);
 
-        for (let cellAddress in ws) {
-          if (cellAddress[0] === '!') continue;
-          if (!ws[cellAddress].s) ws[cellAddress].s = {};
-          Object.assign(ws[cellAddress].s, centerStyle);
-        }
+    const [leftImageBase64, rightImageBase64] = await Promise.all([
+      this.blobToBase64(leftImageBlob),
+      this.blobToBase64(rightImageBlob)
+    ]);
 
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, safeTitle);
+    // Add images to the workbook
+    const leftLogo = workbook.addImage({
+      base64: leftImageBase64,
+      extension: 'png',
+    });
+    const rightLogo = workbook.addImage({
+      base64: rightImageBase64,
+      extension: 'png',
+    });
 
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    // Set background color for specific cells
+    worksheet.getCell('C2').fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFF' } // White background color
+    };
 
-        saveAs(blob, `${title}.xlsx`);
+    // Merge cells for title and image spaces
+    worksheet.mergeCells('C2:E2'); // Title space
+    worksheet.mergeCells('C3:E3'); // Subtitle space
+    worksheet.mergeCells('C4:E4'); // Date space
+
+    // Position images
+    worksheet.addImage(leftLogo, {
+      tl: { col: 1, row: 0 }, // Position at column 1 (A) and row 1 (1)
+      ext: { width: 100, height: 100 },
+      editAs: 'absolute'
+    });
+
+    worksheet.addImage(rightLogo, {
+      tl: { col: 5, row: 0 }, // Position at column 5 (E) and row 1 (1)
+      ext: { width: 100, height: 100 },
+      editAs: 'absolute'
+    });
+
+    // Set text values
+    const titleCell = worksheet.getCell('C2');
+    titleCell.value = 'ST. NICHOLAS ACADEMY OF CASTILLEJOS, INC.';
+    titleCell.font = { size: 16, bold: true };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const subtitleCell = worksheet.getCell('C3');
+    subtitleCell.value = 'San Juan, Castillejos, Zambales';
+    subtitleCell.font = { size: 14, bold: true };
+    subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    const dateCell = worksheet.getCell('C4');
+    dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    dateCell.font = { size: 14, bold: true };
+    dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+    // Adjust row heights for better spacing
+    worksheet.getRow(1).height = 40; // Adjust as needed
+    worksheet.getRow(3).height = 40; // Adjust as needed
+    worksheet.getRow(5).height = 40; // Adjust as needed
+
+        // Add column headers
+        const headers = ['Student ID', 'Full Name', 'Title', 'Description', 'Sanction', 'Status', 'Date'];
+        worksheet.addRow(headers);
+
+        // Add data rows
+        violations.forEach(v => {
+          worksheet.addRow([
+            v.student_id,
+            v.full_name,
+            v.case_title,
+            v.case_description,
+            v.case_sanction,
+            v.case_status === 0 ? 'Not-Cleared' : 'Cleared',
+            v.case_date
+          ]);
+        });
+
+        // Auto-adjust column widths
+        const columnWidths = headers.map(header => header.length); // Initialize with header lengths
+
+        worksheet.eachRow({ includeEmpty: true }, (row) => {
+          row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+            if (cell.value && cell.value.toString().length > columnWidths[colNumber - 1]) {
+              columnWidths[colNumber - 1] = cell.value.toString().length;
+            }
+          });
+        });
+
+        // Set column widths with extra padding
+        columnWidths.forEach((width, index) => {
+          worksheet.getColumn(index + 1).width = width + 2; // Add a little extra space for padding
+        });
+
+        // Apply styling
+        worksheet.eachRow({ includeEmpty: true }, (row) => {
+          row.font = { name: 'Arial', size: 12 };
+          row.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        // Write workbook to a buffer
+        const buffer = await workbook.xlsx.writeBuffer();
+        
+        // Save the buffer as a Blob
+        saveAs(new Blob([buffer]), `${title}.xlsx`);
+        console.log('Excel file created successfully!');
       } catch (error) {
-        console.error('Error exporting report:', error);
+        console.error('Error exporting Excel:', error);
       }
     },
+
+      blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]); // Remove data URI prefix
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      },
 
     exportPDF(violations, title) {
       try {
         const doc = new jsPDF();
-        doc.text(title, 10, 10);
+
+                // Header settings
+        const leftImage = '/src/assets/SNA Logo no BG.png'; // Replace with your Base64 image data
+        const rightImage = '/src/assets/SNA_LOGO2 no bg.png'; // Replace with your Base64 image data
+
+        // Add left image
+        doc.addImage(leftImage, 'PNG', 10, 5, 25, 25); // Adjust position and size as needed
+
+        // Add right image
+        doc.addImage(rightImage, 'PNG', 170, 5, 25, 25); // Adjust position and size as needed
+
+        // Add centered text
+        doc.setFontSize(14);
+        doc.text('ST.NICHOLAS ACADEMY OF CASTILLEJOS, INC. ', 105, 15, { align: 'center' }); // X, Y, alignment
+        doc.setFontSize(12);
+        doc.text('San Juan, Castillejos,Zambales', 105, 20, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text(title, 105, 30, { align: 'center' });
+
+        const marginBelowTitle = 10; // Adjust this value for the desired margin
+        const startY = 25 + marginBelowTitle;
 
         const data = violations.map((v) => [
           v.student_id,
@@ -853,8 +972,23 @@ selectFormat(format) {
         doc.autoTable({
           head: [['Student ID', 'Full Name', 'Title', 'Description', 'Sanction', 'Status', 'Date']],
           body: data,
-          startY: 20
+          startY: startY,
+          headStyles: {
+          fillColor: [47, 63, 100], // RGB color for #2F3F64
+          cellPadding: 3,
+          },
+          styles: {
+            cellPadding: 3
+          },
         });
+
+        // Get the final Y position after the table
+        const finalY = doc.autoTable.previous.finalY;
+
+        // Add the current date at the bottom right
+        doc.setFontSize(8);
+        const currentDate = new Date().toLocaleDateString(); // Format the date as needed
+        doc.text(`Date Issued: ${currentDate}`, 195, finalY + 10, { align: 'right' });
 
         doc.save(`${title}.pdf`);
       } catch (error) {
