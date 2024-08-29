@@ -145,7 +145,7 @@ export default {
 }}
 </script>
 
-<style>
+<style scoped >
 .v-card:hover {
   background-color: #f0f0f0;
 }

@@ -21,6 +21,7 @@
           style="max-width: 500px;"
         ></v-text-field>
 
+        <div class="table-btn">
         <v-btn @click="openDialog" class="mb-2 rounded-l add-record-button mr-2" dark>
           <v-icon left>mdi-plus</v-icon>
           Add Violation
@@ -38,7 +39,7 @@
           <v-icon left>mdi-lightbulb</v-icon>
           Policy
         </v-btn>
-
+      
         <!-- Report Generation Dropdown -->
         <v-menu
           offset-y
@@ -54,54 +55,67 @@
               <v-icon right>mdi-menu-down</v-icon>
             </v-btn>
           </template>
-          <v-list>
-            <v-list-item>
-              <v-btn @click="selectFormat('Excel')" class="m-2" dark>Generate as Excel</v-btn>
-              <v-btn @click="selectFormat('PDF')" class="m-2" dark>Generate as PDF</v-btn>
+          <v-list  style="overflow-x: hidden;">
+            <v-divider></v-divider>
+
+            <v-list-item style=" border-radius: 5px; color: var(--dark); text-align:center;" >
+              <v-btn style="background-color: var(--dark); color: white;" @click="selectFormat('Excel')" elevation="4" class="m-2" dark>Generate as Excel</v-btn>
+              <v-btn style="background-color: var(--dark); color: white;" @click="selectFormat('PDF')" elevation="4" class="m-2" dark>Generate as PDF</v-btn>
             </v-list-item>
+            <v-divider></v-divider>
             <template v-if="showReportOptions">
               <v-list-item>
                 <v-text-field
                   v-model="studentIdForReport"
                   label="Enter Student ID"
                   prepend-icon="mdi-account"
-                  class="mt-4"
+                  class="m-2"
                   hide-details
                 ></v-text-field>
               </v-list-item>
-              <v-list-item>
-                <v-btn @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
+              
+              <v-list-item style="text-align:center;">
+                <v-btn style="background-color: var(--dark); color: white; " @click="generateReportByStudentId" class="mb-2 rounded-l add-record-button" dark>
                   <v-icon left>mdi-file-chart</v-icon>
                   Generate Report by Student ID ({{ reportFormat }})
                 </v-btn>
               </v-list-item>
+              <v-row>
+              <v-col>
               <v-list-item>
                 <v-btn @click="generateDailyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
-                <v-list-item-title>Generate Daily Report ({{ reportFormat }})</v-list-item-title>
+                <v-list-item-title style="font-size: 12px; " >Generate Daily Report ({{ reportFormat }})</v-list-item-title>
               </v-btn>
-              </v-list-item>              
+              </v-list-item> 
               <v-list-item>
                 <v-btn  @click="generateWeeklyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
-                <v-list-item-title>Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
+                <v-list-item-title style="font-size: 12px;" >Generate Weekly Report ({{ reportFormat }})</v-list-item-title>
               </v-btn>
-              </v-list-item>              
+              </v-list-item>  
+            </v-col>
+              <v-col>              
               <v-list-item>
                 <v-btn @click="generateMonthlyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
-                <v-list-item-title>Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
+                <v-list-item-title style="font-size: 12px;" >Generate Monthly Report ({{ reportFormat }})</v-list-item-title>
               </v-btn>
-              </v-list-item>              
+              </v-list-item> 
+                            
               <v-list-item>
                 <v-btn @click="generateYearlyReport" class="mb-2 rounded-l add-record-button">
                 <v-list-item-icon></v-list-item-icon>
-                <v-list-item-title>Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
+                <v-list-item-title style="font-size: 12px;">Generate Yearly Report ({{ reportFormat }})</v-list-item-title>
               </v-btn>
               </v-list-item>
+            </v-col>
+            </v-row>
+              <v-divider></v-divider>
             </template>
           </v-list>
         </v-menu>
+      </div>
       </v-toolbar>
     </template>
 
@@ -326,7 +340,7 @@
     </v-dialog>
 
     <v-card>
-  <v-card-title class="text-h6 font-weight-bold">
+  <v-card-title class="text-h6 ">
     <span>Students With Active Violations</span>
   </v-card-title>
   <v-divider></v-divider>
@@ -1139,7 +1153,20 @@ clearCase(caseId) {
 </script>
 
 
-<style scoped>
+<style lang="scss" >
+
+.v-data-table {
+    .v-data-table-footer__items-per-page{
+      display: none;
+    }
+}
+  .table-btn{
+    .v-btn{
+      background-color: #2F3F64;
+      border-radius: 5px;
+      color: white;
+    }
+  }
   .v-card-title {
     background-color: #2F3F64;
     color: white;
