@@ -142,8 +142,8 @@
     <template v-slot:item="{ item }">
       <tr>
         <td>{{ item.student_id || 'N/A' }}</td>
+        <td>{{ item.full_name }}</td>
         <td>{{ item.con_title }}</td>
-        <!-- <td>{{ item.con_notes }}</td> -->
         <td>{{ formatDate(item.con_date) }}</td>
         <td>
           <v-icon style="color: #2F3F64" @click="viewRecords(item)"><span class= "mdi mdi-eye-circle fs-5 mr-2"></span></v-icon>
@@ -191,7 +191,6 @@ export default {
         { title: 'Student ID', value: 'student_id' },
         { title: 'Student Name', value: 'full_name' },
         { title: 'Entry Title', value: 'con_title' },
-        // { title: 'Important Notes', value: 'con_notes' },
         { title: 'Entry Date', value: 'con_date' },
         { title: 'Actions', sortable: false },
       ],
@@ -290,10 +289,17 @@ export default {
         console.error('Error exporting report:', error);
       }
   },
-    fetchConsultations() {
-    axios.get('http://127.0.0.1:8000/api/consultation')
+  fetchConsultations() {
+  axios.get('http://127.0.0.1:8000/api/consultation')
     .then(response => {
-      this.displayedConsultations = response.data.consultations;
+      this.displayedConsultations = response.data.consultations.map(consultation => {
+        const { student_profile } = consultation;
+        const full_name = `${student_profile.first_name || ''} ${student_profile.middle_name ? student_profile.middle_name + ' ' : ''}${student_profile.last_name || ''}`.trim();
+        return {
+          ...consultation,
+          full_name
+        };
+      });
     })
     .catch(error => {
       console.error('Error fetching consultations:', error);
@@ -302,11 +308,10 @@ export default {
         text: 'Failed to fetch Consultations',
         icon: 'error',
         showConfirmButton: false, 
-        timer: 3000, 
-
+        timer: 3000
       });
     });
-  },
+},
     openDialog() {
       this.dialog = true;
       this.editedItem = {

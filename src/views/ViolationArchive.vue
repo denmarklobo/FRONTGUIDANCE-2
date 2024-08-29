@@ -4,7 +4,7 @@
         <h1 class="bg-title">Archived Violations</h1>
         <div class="inventory">
             <span class="material-icons">archive</span>
-            <span class="text">Archived aViolations</span>
+            <span class="text">Archived Violations</span>
             <hr>
         </div>
     </div>

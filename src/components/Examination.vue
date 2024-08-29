@@ -200,14 +200,22 @@ export default {
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-      axios.get('http://127.0.0.1:8000/api/examinations')
-        .then(response => {
-          this.examinations = response.data.examinations;
-        })
-        .catch(error => {
-          console.error('Error Fetching examinations', error);
-        });
-    },
+  axios.get('http://127.0.0.1:8000/api/examinations')
+    .then(response => {
+      // Transform the data to include full_name
+      this.examinations = response.data.examinations.map(exam => {
+        const { student_profile } = exam;
+        const full_name = `${student_profile.first_name || ''} ${student_profile.middle_name ? student_profile.middle_name + ' ' : ''}${student_profile.last_name || ''}`.trim();
+        return {
+          ...exam,
+          full_name
+        };
+      });
+    })
+    .catch(error => {
+      console.error('Error Fetching examinations', error);
+    });
+},
     openAddDialog() {
       this.addDialog = true;
       this.editedItem = {

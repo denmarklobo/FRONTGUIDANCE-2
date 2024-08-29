@@ -26,10 +26,9 @@
      <template v-slot:item="{ item }">
           <tr>
             <td>{{ item.student_id || 'N/A' }}</td>
-            <td>{{ item.full_name }}</td>
-            <td>{{ item.con_title }}</td>
-          <!--  <td>{{ item.con_notes }}</td> -->
-            <td>{{ formatDate(item.con_date) }}</td>
+          <td>{{ item.full_name }}</td>
+          <td>{{ item.con_title }}</td>
+          <td>{{ formatDate(item.con_date) }}</td>
             <td>
           <v-icon style="color: #2F3F64" @click="viewRecords(item)"><span class= "mdi mdi-eye-circle fs-5 mr-2"></span></v-icon>
           <v-icon size="small" style="color: #2F3F64" @click="unarchiveItem((item.con_id))"><span class="mdi mdi-reload fs-5"></span></v-icon>
@@ -95,19 +94,26 @@ export default {
     },
   },
   methods: {
-     fetchArchivedConsultations() {
-      axios.get('http://127.0.0.1:8000/api/consultations/archived')
-        .then(response => {
-          // Update the component's data with the fetched consultations
-          this.archivedConsultations = response.data.consultations;
-          console.log('Archived consultations fetched successfully:', this.archivedConsultations);
-        })
-        .catch(error => {
-          // Handle any errors that occur during the request
-          this.error = error.response ? error.response.data : error.message;
-          console.error('Error fetching archived consultations:', this.error);
+    fetchArchivedConsultations() {
+    axios.get('http://127.0.0.1:8000/api/consultations/archived')
+      .then(response => {
+        this.archivedConsultations = response.data.consultations.map(consultation => {
+          // Ensure student_profile exists in each consultation
+          const student_profile = consultation.student_profile || {};
+          const full_name = `${student_profile.first_name || ''} ${student_profile.middle_name ? student_profile.middle_name + ' ' : ''}${student_profile.last_name || ''}`.trim();
+          console.log('Full Name:', full_name); // Debugging
+          return {
+            ...consultation,
+            full_name
+          };
         });
-    },
+        console.log('Archived consultations fetched successfully:', this.archivedConsultations);
+      })
+      .catch(error => {
+        this.error = error.response ? error.response.data : error.message;
+        console.error('Error fetching archived consultations:', this.error);
+      });
+  },
     formatDate(dateString) {
       return new Date(dateString).toLocaleDateString();
     },
@@ -144,7 +150,7 @@ export default {
     // Confirm with the user before proceeding
 
         // Send a POST request to the server
-        axios.put('http://127.0.0.1:8000/api/consultation/restore', { con_id })
+        axios.put('http://26.11.249.89:8000/api/consultation/restore', { con_id })
             .then(response => {
                 console.log('Record restored successfully:', response.data);
                 this.fetchArchivedConsultations(); // Refresh the list of archived consultations

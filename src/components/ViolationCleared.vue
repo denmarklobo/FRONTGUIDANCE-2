@@ -24,20 +24,21 @@
         :sort-by="[{ key: 'case_date', order: 'desc' }]"
       >
   
-        <template v-slot:item="{ item }">
-          <tr>
-            <td>{{ item.student_id }}</td>
-            <td>{{ item.case_title }}</td>
-            <td>{{ item.case_description }}</td>
-            <td class="{{ item.case_status === 0 ? 'status-not-cleared' : 'status-cleared' }}">
-    {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
-  </td>
-            <td>{{ item.case_date }}</td>
-            <td>
-              <v-icon size="small" style="color: #2F3F64" @click="restoreItem(item.cases_id)">mdi-restore</v-icon>
-            </td>
-          </tr>
-        </template>
+      <template v-slot:item="{ item }">
+        <tr>
+          <td>{{ item.student_id }}</td>
+          <td>{{ item.full_name }}</td>
+          <td>{{ item.case_title }}</td>
+          <td>{{ item.case_description }}</td>
+          <td class="{{ item.case_status === 0 ? 'status-not-cleared' : 'status-cleared' }}">
+            {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
+          </td>
+          <td>{{ item.case_date }}</td>
+          <td>
+            <v-icon size="small" style="color: #2F3F64" @click="restoreItem(item.cases_id)">mdi-restore</v-icon>
+          </td>
+        </tr>
+      </template>
       </v-data-table>
     </div>
   </template>
@@ -53,6 +54,7 @@
         search: '',
         headers: [
           { title: 'Student ID', value: 'student_id' },
+          { title: 'Student Name', value: 'full_name' },
           { title: 'Title', value: 'case_title' },
           { title: 'Description', value: 'case_description' },
           { title: 'Status', value: 'case_status' },
@@ -83,14 +85,22 @@
     },
     methods: {
       fetchArchivedViolations() {
-        axios.get('http://127.0.0.1:8000/api/archived')
-          .then(response => {
-            this.archivedViolations = response.data.archivedViolations || [];
-          })
-          .catch(error => {
-            console.error('Error fetching archived violations', error);
+      axios.get('http://127.0.0.1:8000/api/archived')
+        .then(response => {
+          this.archivedViolations = response.data.archivedViolations.map(violation => {
+            const student_profile = violation.student_profile || {};
+            const full_name = `${student_profile.first_name || ''} ${student_profile.middle_name ? student_profile.middle_name + ' ' : ''}${student_profile.last_name || ''}`.trim();
+            return {
+              ...violation,
+              full_name
+            };
           });
-      },
+          console.log('Archived violations fetched successfully:', this.archivedViolations);
+        })
+        .catch(error => {
+          console.error('Error fetching archived violations', error);
+        });
+    },
       goBack() {
         this.$router.push('/violation');
       },

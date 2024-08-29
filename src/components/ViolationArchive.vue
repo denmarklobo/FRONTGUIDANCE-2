@@ -24,14 +24,16 @@
       :sort-by="[{ key: 'case_date', order: 'desc' }]"
     >
 
-      <template v-slot:item="{ item }">
+    <template v-slot:item="{ item }">
         <tr>
+          <td>{{ item.student_id }}</td>
+          <td>{{ item.full_name }}</td>
           <td>{{ item.case_title }}</td>
           <td>{{ item.case_description }}</td>
           <td>{{ item.case_sanction }}</td>
           <td class="{{ item.case_status === 0 ? 'status-not-cleared' : 'status-cleared' }}">
-  {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
-</td>
+            {{ item.case_status === 0 ? 'Not-Cleared' : 'Cleared' }}
+          </td>
           <td>{{ item.case_date }}</td>
           <td>
             <v-icon size="small" style="color: #2F3F64" @click="restoreItem(item.cases_id)">mdi-restore</v-icon>
@@ -53,6 +55,7 @@ export default {
       search: '',
       headers: [
         { title: 'Student ID', value: 'student_id' },
+        { title: 'Student Name', value: 'full_name' },
         { title: 'Title', value: 'case_title' },
         { title: 'Description', value: 'case_description' },
         { title: 'Sanction', value: 'case_sanction' },
@@ -86,7 +89,15 @@ export default {
     fetchArchivedViolations() {
       axios.get('http://127.0.0.1:8000/api/deletedCases')
         .then(response => {
-          this.deletedCases = response.data.deletedCases || [];
+          this.deletedCases = response.data.deletedCases.map(violation => {
+            const student_profile = violation.student_profile || {};
+            const full_name = `${student_profile.first_name || ''} ${student_profile.middle_name ? student_profile.middle_name + ' ' : ''}${student_profile.last_name || ''}`.trim();
+            return {
+              ...violation,
+              full_name
+            };
+          });
+          console.log('Archived violations fetched successfully:', this.deletedCases);
         })
         .catch(error => {
           console.error('Error fetching archived violations', error);
