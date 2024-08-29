@@ -115,17 +115,19 @@
           <v-container>
             <v-row dense>
               <v-col cols="12">
-                <!-- <v-text-field -->
-                <v-text-field
-                  v-model="editedItem.student_id"
-                  label="Student ID*"
-                  prepend-icon="mdi-account"
-                  required
-                  type="number"
-                  @input="handleInput"
-                ></v-text-field>
-                <!-- ></v-text-field> -->
-              </v-col>
+                  <v-autocomplete
+                    v-model="editedItem.student_id"
+                    :items="studentIds"
+                    label="Student ID*"
+                    prepend-icon="mdi-account"
+                    required
+                    clearable
+                    dense
+                    hide-no-data
+                    hide-selected
+                    @change="handleStudentIdChange"
+                  ></v-autocomplete>
+                </v-col>
               <v-col cols="12">
                 <v-text-field
                   v-model="editedItem.case_title"
@@ -364,88 +366,95 @@
     
 <!-- Dialog for viewing all violations of the selected student -->
 <v-dialog v-model="viewingRecords" max-width="900px" @click:outside="viewingRecords = false">
-    <v-card>
-      <v-card-title>
-        Violation Details for Student ID: {{ selectedStudentId }}
-      </v-card-title>
-      <v-card-text>
-        <v-row>
-          <!-- Active Violations Column -->
-          <v-col cols="6">
-            <v-card-title>
-              Active Violations
-            </v-card-title>
-            <v-list v-if="selectedStudentViolations.length">
-              <v-list-item-group v-for="(caseItem, index) in selectedStudentViolations" :key="index">
-                <v-list-item :class="caseStatusClass(caseItem)">
-                  <v-list-item-content>
-                    <v-list-item-title style="padding: 0.3rem;">
-                      <strong>Case Title:</strong> {{ caseItem.case_title }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Description:</strong> {{ caseItem.case_description }}
-                    </v-list-item-subtitle>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Sanction:</strong> {{ caseItem.case_sanction }}
-                    </v-list-item-subtitle>
-                    <v-list-item-subtitle style="padding: 0.3rem;">
-                      <strong>Date and Time:</strong> {{ formatDateTime(caseItem.case_date) }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action style="padding: 0.3rem;">
-                    <v-btn @click="editRecord(caseItem)" class="mr-2" small>
-                      <v-icon>mdi-pencil</v-icon>Edit
-                    </v-btn>
-                    <v-btn @click="clearCase(caseItem.cases_id)" class="mr-2" small>
-                      <v-icon>mdi-check</v-icon>Clear
-                    </v-btn>
-                    <v-btn @click="archiveCase(caseItem.cases_id)" class="mr-2" small>
-                      <v-icon>mdi-archive</v-icon>Archive
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-                <hr>
-              </v-list-item-group>
-            </v-list>
-            <v-alert v-else>No active violations found.</v-alert>
-          </v-col>
-          
-          <!-- Violation History Column -->
-          <v-col cols="6">
-            <v-card-title>
-      Violation History
+  <v-card>
+    <v-card-title>
+      Violation Details for Student ID: {{ selectedStudentId }}
     </v-card-title>
-    <v-list v-if="filteredViolations.length">
-      <v-list-item-group>
-        <v-list-item v-for="historyItem in filteredViolations" :key="historyItem.cases_id">
-          <v-list-item-content>
-            <v-list-item-title style="padding: 0.3rem;">
-              <strong>Case Title:</strong> {{ historyItem.case_title }}
-            </v-list-item-title>
-            <v-list-item-subtitle style="padding: 0.3rem;">
-              <strong>Description:</strong> {{ historyItem.case_description }}
-            </v-list-item-subtitle>
-            <v-list-item-subtitle style="padding: 0.3rem;">
-              <strong>Sanction:</strong> {{ historyItem.case_sanction }}
-            </v-list-item-subtitle>
-            <v-list-item-subtitle style="padding: 0.3rem;">
-              <strong>Date and Time:</strong> {{ formatDateTime(historyItem.case_date) }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <hr>
-      </v-list-item-group>
-    </v-list>
-    <v-alert v-else>No Violation history found.</v-alert>
-  </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+    <v-card-text>
+      <v-row>
+        <!-- Active Violations Column -->
+        <v-col cols="6">
+          <v-card-title>
+            Active Violations
+          </v-card-title>
+          <v-list v-if="selectedStudentViolations.length">
+            <v-list-item-group>
+              <v-list-item
+                v-for="(caseItem, index) in selectedStudentViolations"
+                :key="index"
+                :class="caseStatusClass(caseItem)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title style="padding: 0.3rem;">
+                    <strong>{{ index + 1 }}. Case Title:</strong> {{ caseItem.case_title }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Description:</strong> {{ caseItem.case_description }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Sanction:</strong> {{ caseItem.case_sanction }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Date and Time:</strong> {{ formatDateTime(caseItem.case_date) }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action style="padding: 0.3rem;">
+                  <v-btn @click="editRecord(caseItem)" class="mr-2" small>
+                    <v-icon>mdi-pencil</v-icon>Edit
+                  </v-btn>
+                  <v-btn @click="clearCase(caseItem.cases_id)" class="mr-2" small>
+                    <v-icon>mdi-check</v-icon>Clear
+                  </v-btn>
+                  <v-btn @click="archiveCase(caseItem.cases_id)" class="mr-2" small>
+                    <v-icon>mdi-archive</v-icon>Archive
+                  </v-btn>
+                </v-list-item-action>
+                <hr>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+          <v-alert v-else>No active violations found.</v-alert>
+        </v-col>
+
+        <!-- Violation History Column -->
+        <v-col cols="6">
+          <v-card-title>
+            Violation History
+          </v-card-title>
+          <v-list v-if="filteredViolations.length">
+            <v-list-item-group>
+              <v-list-item
+                v-for="(historyItem, index) in filteredViolations"
+                :key="historyItem.cases_id"
+              >
+                <v-list-item-content>
+                  <v-list-item-title style="padding: 0.3rem;">
+                    <strong>{{ index + 1 }}. Case Title:</strong> {{ historyItem.case_title }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Description:</strong> {{ historyItem.case_description }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Sanction:</strong> {{ historyItem.case_sanction }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle style="padding: 0.3rem;">
+                    <strong>Date and Time:</strong> {{ formatDateTime(historyItem.case_date) }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <hr>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+          <v-alert v-else>No Violation history found.</v-alert>
+        </v-col>
+      </v-row>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn @click="viewingRecords = false" class="mb-2 rounded-l add-record-button" dark>Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
 
   </v-data-table>
 </template>
@@ -479,6 +488,7 @@ export default {
       editRecordDialog: false,
       policyDialog: false,
       editedItems: [],
+      studentIds: [],
       editedItem: {
         id: null, // Field to track record ID
         student_id: null, // Nullable
@@ -836,20 +846,32 @@ selectFormat(format) {
         console.error('Error exporting PDF:', error);
       }
     },
-
+    handleStudentIdChange(value) {
+      // Handle any logic you want when the student ID is changed
+      console.log('Selected Student ID:', value);
+    },
     fetchViolations() {
-      axios.get('http://127.0.0.1:8000/api/cases')
+      axios
+        .get('http://127.0.0.1:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
-          this.cases = response.data.cases.map((cases) => ({
-            ...cases, 
+          
+          // Store fetched cases
+          this.cases = response.data.cases.map(cases => ({
+            ...cases,
             full_name: `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim(),
           }));
+
+          // Extract and store unique student IDs for the dropdown
+          this.studentIds = [...new Set(this.cases.map(cases => cases.student_id))];
         })
         .catch(error => {
           console.error('Error fetching violations:', error.response ? error.response.data : error.message);
         });
     },
+    created() {
+    this.fetchViolations(); // Fetch the cases data when the component is created
+  },
 
     viewStudentViolations(studentId) {
       this.selectedStudentId = studentId;
