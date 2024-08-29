@@ -166,7 +166,7 @@ export default {
       search: '',
       headers: [
         { title: 'Student ID', key: 'student_id' },
-        { title: 'Name', key: 'full_name' },
+        { title: 'Student Name', key: 'full_name' },
         { title: 'Exam Title', key: 'exam_title' },
         { title: 'Assessment', key: 'exam_remarks' },
         { title: 'Date', key: 'exam_date' },
@@ -200,7 +200,7 @@ export default {
       this.editedItem.student_id = value.slice(0, 12);
     },
     fetchExam() {
-  axios.get('http://127.0.0.1:8000/api/examinations')
+  axios.get('http://26.11.249.89:8000/api/examinations')
     .then(response => {
       // Transform the data to include full_name
       this.examinations = response.data.examinations.map(exam => {
@@ -257,7 +257,7 @@ export default {
         cancelButtonColor: "#F44336",
       }).then((result) => {
         if (result.isConfirmed) {
-          axios.post('http://127.0.0.1:8000/api/examinations', this.editedItem)
+          axios.post('http://26.11.249.89:8000/api/examinations', this.editedItem)
             .then(response => {
               this.examinations.push(response.data);
               this.fetchExam();
@@ -297,7 +297,7 @@ export default {
     cancelButtonColor: "#F44336",
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.put(`http://127.0.0.1:8000/api/examinations/${this.editedItem.exam_id}`, {
+      axios.put(`http://26.11.249.89:8000/api/examinations/${this.editedItem.exam_id}`, {
         student_id: this.editedItem.student_id,
         exam_title: this.editedItem.exam_title,
         exam_remarks: this.editedItem.exam_remarks,
@@ -341,7 +341,7 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           console.log(id);
-          axios.post(`http://127.0.0.1:8000/api/examinations/${id}/archive`)
+          axios.post(`http://26.11.249.89:8000/api/examinations/${id}/archive`)
             .then(response => {
               this.fetchExam();
               Swal.fire({

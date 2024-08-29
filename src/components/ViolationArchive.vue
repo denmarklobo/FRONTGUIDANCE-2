@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     fetchArchivedViolations() {
-      axios.get('http://127.0.0.1:8000/api/deletedCases')
+      axios.get('http://26.11.249.89:8000/api/deletedCases')
         .then(response => {
           this.deletedCases = response.data.deletedCases.map(violation => {
             const student_profile = violation.student_profile || {};
@@ -121,7 +121,7 @@ export default {
       // console.log('Received ID for restoring:', cases_id);
       // const isConfirmed = confirm('Are you sure you want to restore this record?');
       // if (isConfirmed) {
-        axios.post('http://127.0.0.1:8000/api/cases/restore', { cases_id })
+        axios.post('http://26.11.249.89:8000/api/cases/restore', { cases_id })
           .then(response => {
             console.log('Record restored successfully:', response.data);
             this.fetchArchivedViolations(); // Refresh the list of archived violations

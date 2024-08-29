@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     fetchArchivedConsultations() {
-    axios.get('http://127.0.0.1:8000/api/consultations/archived')
+    axios.get('http://26.11.249.89:8000/api/consultations/archived')
       .then(response => {
         this.archivedConsultations = response.data.consultations.map(consultation => {
           // Ensure student_profile exists in each consultation

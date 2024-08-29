@@ -85,7 +85,7 @@
     },
     methods: {
       fetchArchivedViolations() {
-      axios.get('http://127.0.0.1:8000/api/archived')
+      axios.get('http://26.11.249.89:8000/api/archived')
         .then(response => {
           this.archivedViolations = response.data.archivedViolations.map(violation => {
             const student_profile = violation.student_profile || {};
@@ -107,7 +107,7 @@
       restoreItem(cases_id) {
         Swal.fire({
       title: 'Are you sure?',
-      text: 'Do you want to unarchive this record?',
+      text: 'Do you want to retrieve this record?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -116,13 +116,13 @@
       cancelButtonColor: "#F44336",
     }).then((result) => {
       if (result.isConfirmed) {
-          axios.post('http://127.0.0.1:8000/api/cases/restore', { cases_id })
+          axios.post('http://26.11.249.89:8000/api/cases/restore', { cases_id })
             .then(response => {
               console.log('Record restored successfully:', response.data);
               this.fetchArchivedViolations(); // Refresh the list of archived violations
               Swal.fire(
-              'Unarchived!',
-              'The record has been unarchived successfully.',
+              'Retrieved!',
+              'The record has been retrieved successfully.',
               'success'
             );
             })
@@ -130,7 +130,7 @@
               console.error('Error restoring record:', error.response ? error.response.data : error.message);
               Swal.fire(
               'Error!',
-              'There was an issue unarchiving the record.',
+              'There was an issue retrieving the record.',
               'error'
             );
             });

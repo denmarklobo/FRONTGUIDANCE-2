@@ -129,7 +129,7 @@
           <v-container>
             <v-row dense>
               <v-col cols="12">
-                  <v-autocomplete
+                <v-text-field
                     v-model="editedItem.student_id"
                     :items="studentIds"
                     label="Student ID*"
@@ -140,7 +140,7 @@
                     hide-no-data
                     hide-selected
                     @change="handleStudentIdChange"
-                  ></v-autocomplete>
+                    ></v-text-field>
                 </v-col>
               <v-col cols="12">
                 <v-text-field
@@ -179,8 +179,8 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="white" variant="text" @click="saveNewRecord" class="add-record-button">Save</v-btn>
-      <v-btn color="white" variant="text" @click="closeDialog" class="add-record-button">Cancel</v-btn>
+      <v-btn style="background-color: var(--dark); color: white;" variant="elevated" @click="saveNewRecord" class="add-record-button">Save</v-btn>
+      <v-btn style="background-color: var(--dark); color: white;" variant="elevated" @click="closeDialog" class="add-record-button">Cancel</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -242,8 +242,8 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="white" variant="text" @click="saveEditedRecord" class="add-record-button">Save</v-btn>
-      <v-btn color="white" variant="text" @click="closeEditRecordDialog" class="add-record-button">Cancel</v-btn>
+      <v-btn style="background-color: var(--dark); color: white;" variant="elevated"  @click="saveEditedRecord" class="add-record-button">Save</v-btn>
+      <v-btn style="background-color: var(--dark); color: white;" variant="elevated"  @click="closeEditRecordDialog" class="add-record-button">Cancel</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -579,7 +579,7 @@ export default {
   methods: {
     async fetchArchivedViolations() {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/archived', {
+      const response = await axios.get('http://26.11.249.89:8000/api/archived', {
         params: {
           student_id: this.selectedStudentId
         }
@@ -630,12 +630,13 @@ export default {
     this.editRecordDialog = true; // Open the edit dialog
   },
   saveEditedRecord() {
+    this.editRecordDialog = false;
   if (!this.editedItem.cases_id) {
     Swal.fire('Error', 'Invalid case ID.', 'error');
     return;
   }
 
-  axios.put(`http://127.0.0.1:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
+  axios.put(`http://26.11.249.89:8000/api/cases/${this.editedItem.cases_id}`, this.editedItem)
     .then(response => {
       console.log('Update response:', response.data);
 
@@ -866,7 +867,7 @@ selectFormat(format) {
     },
     fetchViolations() {
       axios
-        .get('http://127.0.0.1:8000/api/cases')
+        .get('http://26.11.249.89:8000/api/cases')
         .then(response => {
           console.log('Fetched violations:', response.data.cases);
           
@@ -902,6 +903,7 @@ selectFormat(format) {
     return this.cases.filter(v => v.student_id === student_id);
   },
   saveNewRecord() {
+    this.dialog = false;
   if (!this.editedItem.student_id) {
     Swal.fire('Error', 'Student ID is required.', 'error');
     return;
@@ -937,7 +939,7 @@ selectFormat(format) {
   this.editedItem.case_date = formatDateTime(new Date());
 
   // Add the new record
-  axios.post('http://127.0.0.1:8000/api/cases', this.editedItem)
+  axios.post('http://26.11.249.89:8000/api/cases', this.editedItem)
     .then(response => {
       // Successfully saved
       this.cases.push(response.data); // Add the new violation to the list
@@ -955,6 +957,7 @@ selectFormat(format) {
 },
 
 archiveCase(caseId) {
+  this.viewingRecords = false;
     Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to archive this record?',
@@ -967,7 +970,7 @@ archiveCase(caseId) {
     }).then((result) => {
         if (result.isConfirmed) {
             axios
-                .post(`http://127.0.0.1:8000/api/cases/delete/${caseId}`) // Ensure the URL matches the route definition
+                .post(`http://26.11.249.89:8000/api/cases/delete/${caseId}`) // Ensure the URL matches the route definition
                 .then(response => {
                     // Handle successful response
                     console.log('Archived case response:', response.data);
@@ -1004,62 +1007,12 @@ archiveCase(caseId) {
     });
 },
 
-// formatDateTime = (date) => {
-//   const pad = (num) => num.toString().padStart(2, '0');
-//   const year = date.getFullYear();
-//   const month = pad(date.getMonth() + 1);
-//   const day = pad(date.getDate());
-//   const hours = pad(date.getHours());
-//   const minutes = pad(date.getMinutes());
-//   const seconds = pad(date.getSeconds());
-//   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-// },
-
-// this.editedItem.case_date = formatDateTime(new Date());
-
-// // Add the new record
-// axios.post(`http://127.0.0.1:8000/api/cases`, this.editedItem)
-//   .then(response => {                                         
-//     // Successfully saved
-//     this.cases.push(response.data); // Add the new violation to the list
-//     Swal.fire('Success!', 'New violation record saved successfully!', 'success')
-//       .then(() => {
-//         // Close the dialog after showing the success message
-//         this.closeDialog();
-//       });
-//   })
-//   .catch(error => {
-//     // Handle errors
-//     console.error('Error saving new record:', error.response ? error.response.data : error.message);
-//     Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
-//   });
-
-// Method to create a new record
-// createRecord() {
-//   const dataToSend = {
-//     student_id: this.editedItem.student_id,
-//     case_title: this.editedItem.case_title,
-//     case_description: this.editedItem.case_description,
-//     case_sanction: this.editedItem.case_sanction,
-//     case_status: 0
-//   };
-
-//   axios.post('http://your-api-url/cases', dataToSend)
-//     .then(response => {
-//       this.cases.push(response.data.case);
-//       this.closeDialog();
-//       Swal.fire('Saved!', 'Record saved successfully!', 'success');
-//     })
-//     .catch(error => {
-//       console.error('Error saving new record:', error);
-//     });
-// },
 
 clearCase(caseId) {
     this.viewingRecords = false;  // Close the dialog after action
     Swal.fire({
       title: 'Are you sure?',
-      text: 'Do you want to archive this record?',
+      text: 'Do you want to clear this record?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: '<span style="color: #ffffff;">Yes</span>',
@@ -1070,7 +1023,7 @@ clearCase(caseId) {
       if (result.isConfirmed) {
         console.log(caseId);
         axios
-          .post(`http://127.0.0.1:8000/api/cases/arch`, null, { params: { cases_id: caseId } }) // Use query parameters
+          .post(`http://26.11.249.89:8000/api/cases/arch`, null, { params: { cases_id: caseId } }) // Use query parameters
           .then(response => {
             this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
             Swal.fire({
