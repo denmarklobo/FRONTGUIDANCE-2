@@ -120,18 +120,23 @@
             .then(response => {
               console.log('Record restored successfully:', response.data);
               this.fetchArchivedViolations(); // Refresh the list of archived violations
-              Swal.fire(
-              'Retrieved!',
-              'The record has been retrieved successfully.',
-              'success'
-            );
+              Swal.fire({
+                title: 'Retrieved!',
+                text: 'The record has been retrieved successfully',
+                icon: 'success',
+                showConfirmButton: false, 
+                timer: 3000, 
+            });
             })
             .catch(error => {
               console.error('Error restoring record:', error.response ? error.response.data : error.message);
-              Swal.fire(
-              'Error!',
-              'There was an issue retrieving the record.',
-              'error'
+              Swal.fire({
+                title: 'Error!',
+                text: 'There was an issue retrieving the record',
+                icon: 'error',
+                showConfirmButton: false, 
+                timer: 3000, 
+              }
             );
             });
       }

@@ -143,12 +143,16 @@
                     ></v-text-field>
                 </v-col>
               <v-col cols="12">
-                <v-text-field
+               <v-select
                   v-model="editedItem.case_title"
-                  label="Title*"
+                  label="Violation Offense*"
                   prepend-icon="mdi-book"
                   required
-                ></v-text-field>
+                  :items="[
+                    'Major violation',
+                    'Minor Violation'
+                  ]"
+                ></v-select>
               </v-col>
               <v-col cols="12">
                 <v-text-field
@@ -204,12 +208,16 @@
             ></v-text-field>
           </v-col>
           <v-col cols="12">
-            <v-text-field
-              v-model="editedItem.case_title"
-              label="Title*"
-              prepend-icon="mdi-book"
-              required
-            ></v-text-field>
+            <v-select
+                  v-model="editedItem.case_title"
+                  label="Violation Offense*"
+                  prepend-icon="mdi-book"
+                  required
+                  :items="[
+                    'Major violation',
+                    'Minor Violation'
+                  ]"
+                ></v-select>
           </v-col>
           <v-col cols="12">
             <v-text-field
@@ -349,8 +357,9 @@
       <v-col cols="2">Student ID</v-col>
       <v-col cols="3">Student Name</v-col>
       <v-col cols="2">Grade Level</v-col>
-      <v-col cols="2">Guardian Mobile No.</v-col>
-      <v-col cols="2">Student Guidance Status</v-col>
+      <!-- <v-col cols="2">Guardian Name</v-col> -->
+      <v-col cols="3">Student's Guardian</v-col>
+      <v-col cols="1">Status</v-col>
     </v-row>
     <v-divider></v-divider>
     <!-- List of unique student IDs for Violations -->
@@ -365,7 +374,8 @@
               <v-col cols="2">{{ student.student_id }}</v-col>
               <v-col cols="3">{{ student.full_name }}</v-col>
               <v-col cols="2">{{ student.grade_level }}</v-col>
-              <v-col cols="2">{{ student.guardian_mobileno }}</v-col>
+              <!-- <v-col cols="2">{{ student.guardian }}</v-col> -->
+              <v-col cols="3">{{ student.guardian }} ({{  student.guardian_mobileno }})</v-col>
               <v-col cols="2" :class="caseStatusClass(student.student_id)">
                 {{ caseStatus(student.student_id) }}
               </v-col>
@@ -400,7 +410,7 @@
               >
                 <v-list-item-content>
                   <v-list-item-title style="padding: 0.3rem;">
-                    <strong>{{ index + 1 }}. Case Title:</strong> {{ caseItem.case_title }}
+                    <strong>{{ index + 1 }}. Violation Offense:</strong> {{ caseItem.case_title }}
                   </v-list-item-title>
                   <v-list-item-subtitle style="padding: 0.3rem;">
                     <strong>Description:</strong> {{ caseItem.case_description }}
@@ -443,7 +453,7 @@
               >
                 <v-list-item-content>
                   <v-list-item-title style="padding: 0.3rem;">
-                    <strong>{{ index + 1 }}. Case Title:</strong> {{ historyItem.case_title }}
+                    <strong>{{ index + 1 }}. Violation Offense:</strong> {{ historyItem.case_title }}
                   </v-list-item-title>
                   <v-list-item-subtitle style="padding: 0.3rem;">
                     <strong>Description:</strong> {{ historyItem.case_description }}
@@ -546,6 +556,7 @@ export default {
       const studentId = cases.student_profile.student_id;
       const fullName = `${cases.student_profile.first_name} ${cases.student_profile.middle_name} ${cases.student_profile.last_name}`.trim();
       const guardianMobileno = cases.student_profile.guardian_mobileno; // Add this line
+      const guardianFullname = cases.student_profile.guardian;
 
       if (!uniqueStudents[studentId]) {
         // Determine case status: "Not-Cleared" if any case is not cleared (case_status === 0)
@@ -557,6 +568,7 @@ export default {
           student_id: studentId, 
           full_name: fullName, 
           grade_level: cases.student_profile.grade_level,
+          guardian: guardianFullname,
           guardian_mobileno: guardianMobileno, // Add this line
           case_status: caseStatus 
         };
@@ -648,7 +660,13 @@ export default {
       console.log('Dialog closing');
       this.closeEditRecordDialog();
       this.closeViewingRecordsDialog();
-      Swal.fire('Success!', 'Violation updated successfully!', 'success');
+      Swal.fire({
+                title: 'Success!',
+                text: 'Violation updated successfully!',
+                icon: 'success',
+                showConfirmButton: false, 
+                timer: 3000, 
+              });
     })
     .catch(error => {
       console.error('Error updating record:', error.response ? error.response.data : error.message);
@@ -1043,51 +1061,86 @@ selectFormat(format) {
     return;
   }
 
-  // Fetch existing violations for the student
   const violationsForStudent = this.getStudentViolations(this.editedItem.student_id);
 
-  // Check if the student already has 3 violations
-  if (violationsForStudent.length >= 3) {
+  const student = this.cases.find(v => v.student_id === this.editedItem.student_id);
+  const studentName = student ? student.full_name : 'Unknown Student';
+  const studentId = student ? student.student_id : 'Unknown ID';
+
+// Check if the student already has 3 violations
+if (violationsForStudent.length >= 3) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Valid for Suspension',
+    text: `${studentId}, ${studentName}, already has 3 violations.`,
+    showConfirmButton: false,
+    timer: 3000,
+  });
+  return;
+}
+
+// Format the current date and time to 'YYYY-MM-DD HH:mm:ss'
+const formatDateTime = (date) => {
+  const pad = (num) => num.toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+// Add the current date and time to the editedItem
+this.editedItem.case_date = formatDateTime(new Date());
+
+// Add the new record
+axios.post('http://26.11.249.89:8000/api/cases', this.editedItem)
+  .then(response => {
+    // Successfully saved
+    this.cases.push(response.data); // Add the new violation to the list
     Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'This student already has 3 violations.',
-      confirmButtonText: 'OK'
-    });
-    return;
-  }
-
-  // Format the current date and time to 'YYYY-MM-DD HH:mm:ss'
-  const formatDateTime = (date) => {
-    const pad = (num) => num.toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
-  // Add the current date and time to the editedItem
-  this.editedItem.case_date = formatDateTime(new Date());
-
-  // Add the new record
-  axios.post('http://26.11.249.89:8000/api/cases', this.editedItem)
-    .then(response => {
-      // Successfully saved
-      this.cases.push(response.data); // Add the new violation to the list
-      Swal.fire('Success!', 'New violation record saved successfully!', 'success')
-        .then(() => {
-          // Close the dialog after showing the success message
-          this.closeDialog();
-        });
+      title: 'Success!',
+      text: 'New violation record saved successfully!',
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 3000,
     })
-    .catch(error => {
-      // Handle errors
-      console.error('Error saving new record:', error.response ? error.response.data : error.message);
-      Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
+    .then(() => {
+      // Close the dialog after showing the success message
+      this.closeDialog();
+
+      // After 5 seconds, show the warning if it's the second violation
+      if (violationsForStudent.length === 1) {
+        setTimeout(() => {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: `${studentId}, ${studentName}, now has 2 violations.`,
+            confirmButtonText: '<span style="color: #ffffff;">Ok</span>',
+            confirmButtonColor: "#F44336",
+          });
+        },);
+      }
+      if (violationsForStudent.length === 2) {
+        setTimeout(() => {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: `${studentId}, ${studentName}, now has 3 violations.`,
+            confirmButtonText: '<span style="color: #ffffff;">Ok</span>',
+            confirmButtonColor: "#F44336",
+          });
+        },);
+      }
     });
+  })
+  .catch(error => {
+    // Handle errors
+    console.error('Error saving new record:', error.response ? error.response.data : error.message);
+    Swal.fire('Error', 'Failed to save new record. Please try again.', 'error');
+  });
+
 },
 
 archiveCase(caseId) {
@@ -1161,8 +1214,8 @@ clearCase(caseId) {
           .then(response => {
             this.selectedStudentViolations = this.selectedStudentViolations.filter(record => record.cases_id !== caseId);
             Swal.fire({
-              title: 'Archived',
-              text: 'Record Archived Successfully!',
+              title: 'Cleared',
+              text: 'Record Cleared Successfully!',
               icon: 'success',
               showConfirmButton: false,
               timer: 3000,
