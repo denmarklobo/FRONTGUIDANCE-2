@@ -674,6 +674,35 @@ export default {
     });
 },
 
+caseStatus(studentId) {
+    const violations = this.cases.filter(c => c.student_profile.student_id === studentId && c.case_status === 0);
+    
+    // If the student has 3 or more pending violations, mark them as "For Suspension"
+    if (violations.length >= 3) {
+      return 'For Suspension';
+    }
+    // If the student has exactly 2 pending violations, mark them as "Warning"
+    else if (violations.length === 2) {
+      return 'Warning';
+    } else {
+      return violations.length > 0 ? 'Not-Cleared' : 'Cleared';
+    }
+  },
+
+  // Determine the class for case status to apply specific styles
+  caseStatusClass(studentId) {
+    const violations = this.cases.filter(c => c.student_profile.student_id === studentId && c.case_status === 0);
+
+    if (violations.length >= 3) {
+      return 'for-suspension'; // Class for suspension status
+    } else if (violations.length === 2) {
+      return 'warning'; // Class for warning status
+    } else {
+      return violations.length > 0 ? 'not-cleared' : 'cleared';
+    }
+  },
+
+
 
   closeEditRecordDialog() {
     this.editRecordDialog = false; // Close the edit dialog
@@ -1294,6 +1323,24 @@ clearCase(caseId) {
 
 
 <style lang="scss" >
+
+.for-suspension {
+    color: red; /* Highlight students "For Suspension" */
+    font-weight: bold;
+  }
+
+  .warning {
+    color: orange; /* Highlight students with a "Warning" */
+    font-weight: bold;
+  }
+
+  .not-cleared {
+    color: darkorange; /* Styling for "Not-Cleared" */
+  }
+
+  .cleared {
+    color: green; /* Styling for "Cleared" */
+  }
 
 .v-data-table {
     .v-data-table-footer__items-per-page{
