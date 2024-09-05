@@ -6,7 +6,7 @@
               v-model="search"
               class="w-auto mr-4"
               density="compact"
-              label="Search Archived Violation"
+              label="Search Cleared Violation"
               prepend-inner-icon="mdi-magnify"
               variant="solo-filled"
               flat
@@ -146,6 +146,7 @@
   </script>
   
   <style scoped>
+  
   .v-card:hover {
     background-color: #f0f0f0;
   }
